@@ -238,6 +238,17 @@ class AIConfigBridge {
     
     async makeOpenRouterRequest(message, context, config) {
         try {
+            // Get current data from the dashboard
+            const currentData = this.getCurrentDashboardData();
+            const dataContext = this.formatDataForAI(currentData);
+            
+            // Create enhanced system prompt with data context
+            let systemPrompt = 'You are an AI assistant for the Philippines Region 2 Site Tracker dashboard. Help analyze telecommunications site data, provide geographic insights, identify issues, and suggest optimizations for the region.';
+            
+            if (dataContext.hasData) {
+                systemPrompt += `\n\nCurrent Dashboard Data Context:\n${dataContext.summary}\n\nYou can reference this data in your responses and provide specific insights based on the actual loaded data.`;
+            }
+            
             const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
                 method: 'POST',
                 headers: {
@@ -251,14 +262,14 @@ class AIConfigBridge {
                     messages: [
                         {
                             role: 'system',
-                            content: 'You are an AI assistant for the Philippines Region 2 Site Tracker dashboard. Help analyze telecommunications site data, provide geographic insights, identify issues, and suggest optimizations for the region.'
+                            content: systemPrompt
                         },
                         {
                             role: 'user',
-                            content: message
+                            content: dataContext.hasData ? `${message}\n\nPlease analyze the current data: ${dataContext.dataPreview}` : message
                         }
                     ],
-                    max_tokens: 1000,
+                    max_tokens: 1500,
                     temperature: 0.7
                 })
             });
@@ -278,6 +289,17 @@ class AIConfigBridge {
     
     async makeDeepSeekRequest(message, context, config) {
         try {
+            // Get current data from the dashboard
+            const currentData = this.getCurrentDashboardData();
+            const dataContext = this.formatDataForAI(currentData);
+            
+            // Create enhanced system prompt with data context
+            let systemPrompt = 'You are an AI assistant for the Philippines Region 2 Site Tracker dashboard. Help analyze telecommunications site data, provide geographic insights, identify issues, and suggest optimizations for the region.';
+            
+            if (dataContext.hasData) {
+                systemPrompt += `\n\nCurrent Dashboard Data Context:\n${dataContext.summary}\n\nYou can reference this data in your responses and provide specific insights based on the actual loaded data.`;
+            }
+            
             const response = await fetch('https://api.deepseek.com/beta/chat/completions', {
                 method: 'POST',
                 headers: {
@@ -289,14 +311,14 @@ class AIConfigBridge {
                     messages: [
                         {
                             role: 'system',
-                            content: 'You are an AI assistant for the Philippines Region 2 Site Tracker dashboard. Help analyze telecommunications site data, provide geographic insights, identify issues, and suggest optimizations for the region.'
+                            content: systemPrompt
                         },
                         {
                             role: 'user',
-                            content: message
+                            content: dataContext.hasData ? `${message}\n\nPlease analyze the current data: ${dataContext.dataPreview}` : message
                         }
                     ],
-                    max_tokens: 1000,
+                    max_tokens: 1500,
                     temperature: 0.7
                 })
             });
@@ -317,35 +339,142 @@ class AIConfigBridge {
     generateLocalResponse(message, context) {
         const lowerMessage = message.toLowerCase();
         
+        // Get current data for local analysis
+        const currentData = this.getCurrentDashboardData();
+        const dataContext = this.formatDataForAI(currentData);
+        
         if (lowerMessage.includes('analyze') || lowerMessage.includes('analysis')) {
-            return "📊 **Data Analysis Available**: I can help analyze your Philippines Region 2 site data including connectivity patterns, performance metrics, and geographic distribution. Please ensure your data is loaded from Google Sheets first, then I can provide comprehensive insights about your telecommunications infrastructure.";
+            if (dataContext.hasData) {
+                return `📊 **Data Analysis**: I can see you have ${dataContext.recordCount} sites loaded from your Philippines Region 2 data.\n\n${dataContext.basicAnalysis}\n\n**Geographic Distribution:**\n${dataContext.locationSummary}\n\n**Technology Breakdown:**\n${dataContext.technologySummary}\n\nFor deeper AI-powered analysis, configure OpenRouter or DeepSeek in the left panel.`;
+            } else {
+                return "📊 **Data Analysis Available**: I can help analyze your Philippines Region 2 site data including connectivity patterns, performance metrics, and geographic distribution. Please load your data from Google Sheets first using the 'Load Data' button in the left panel.";
+            }
         } 
         
         if (lowerMessage.includes('issue') || lowerMessage.includes('problem')) {
-            return "🔍 **Issue Detection**: I can identify various issues in your network data including:\n• Connectivity gaps and outages\n• Missing coordinates or location data\n• Performance anomalies and degradation\n• Coverage problems and blind spots\n• Infrastructure bottlenecks\n\nMake sure your Philippines Region 2 data is loaded first!";
+            if (dataContext.hasData) {
+                return `🔍 **Issue Detection Results**: Based on your ${dataContext.recordCount} loaded sites:\n\n${dataContext.issueAnalysis}\n\n**Recommendations:**\n• Review sites with missing coordinates\n• Check connectivity status for inactive sites\n• Verify data completeness for better analysis\n\nFor advanced issue detection, enable external AI providers.`;
+            } else {
+                return "🔍 **Issue Detection**: Load your Philippines Region 2 data first, then I can identify connectivity gaps, missing coordinates, performance anomalies, and coverage problems in your actual network data.";
+            }
         }
         
         if (lowerMessage.includes('insight') || lowerMessage.includes('recommendation')) {
-            return "💡 **Comprehensive Insights**: I can generate detailed insights about your network infrastructure including:\n• Geographic coverage analysis\n• Technology distribution patterns\n• Provider performance comparisons\n• Bandwidth utilization trends\n• Expansion opportunities in Region 2\n\nWhat specific aspect interests you most?";
+            if (dataContext.hasData) {
+                return `💡 **Network Insights**: From your ${dataContext.recordCount} sites:\n\n**Coverage Analysis:**\n${dataContext.coverageInsights}\n\n**Provider Distribution:**\n${dataContext.providerInsights}\n\n**Key Recommendations:**\n• Focus expansion in underserved areas\n• Optimize existing site performance\n• Consider technology upgrades where needed\n\nWhat specific aspect would you like me to explore further?`;
+            } else {
+                return "💡 **Comprehensive Insights**: Load your data first to get specific insights about geographic coverage, technology distribution, provider performance, and expansion opportunities in Philippines Region 2.";
+            }
         }
         
         if (lowerMessage.includes('optimize') || lowerMessage.includes('improvement')) {
-            return "⚡ **Network Optimization**: I can help optimize your Philippines Region 2 network by:\n• Suggesting optimal locations for new sites\n• Identifying coverage gaps and solutions\n• Recommending technology upgrades\n• Analyzing traffic patterns and load balancing\n• Improving overall performance metrics\n\nWhat would you like to optimize specifically?";
+            if (dataContext.hasData) {
+                return `⚡ **Optimization Opportunities**: Based on your current ${dataContext.recordCount} sites:\n\n${dataContext.optimizationSuggestions}\n\n**Priority Actions:**\n• Address coverage gaps in remote areas\n• Upgrade legacy technology sites\n• Improve site density in high-demand areas\n• Enhance redundancy for critical locations\n\nConfigure external AI for detailed optimization strategies.`;
+            } else {
+                return "⚡ **Network Optimization**: Load your Philippines Region 2 site data first, then I can suggest optimal locations for new sites, identify coverage gaps, recommend technology upgrades, and improve overall performance metrics.";
+            }
         }
         
-        // Default response
-        return `🤖 **AI Assistant Ready**: I understand you're asking about "${message}". 
-
-I can help with:
-• **📊 Data Analysis** - Comprehensive site and performance analysis
-• **🗺️ Geographic Insights** - Coverage maps and regional patterns  
-• **🔍 Issue Detection** - Finding connectivity and performance problems
-• **⚡ Optimization** - Network improvement recommendations
-• **📈 Performance Monitoring** - Tracking metrics and trends
-
-**Note**: I'm currently using Local AI. For enhanced capabilities, configure OpenRouter or DeepSeek in the AI Configuration panel on the left.
-
-What specific aspect of your Philippines Region 2 network would you like me to focus on?`;
+        // Default response with data context
+        if (dataContext.hasData) {
+            return `🤖 **AI Assistant Ready**: I can see you have ${dataContext.recordCount} sites loaded from Philippines Region 2.\n\n**Quick Data Overview:**\n${dataContext.quickSummary}\n\nI can help with:\n• **📊 Data Analysis** - Analyze your ${dataContext.recordCount} sites\n• **🗺️ Geographic Insights** - Regional coverage patterns\n• **🔍 Issue Detection** - Find problems in your data\n• **⚡ Optimization** - Improvement recommendations\n\nWhat would you like me to analyze about your network data?`;
+        } else {
+            return `🤖 **AI Assistant Ready**: I understand you're asking about "${message}".\n\n**No data loaded yet** - Please use the 'Load Data' button to fetch your Philippines Region 2 site data from Google Sheets.\n\nOnce loaded, I can help with:\n• **📊 Data Analysis** - Comprehensive analysis\n• **🗺️ Geographic Insights** - Coverage patterns\n• **🔍 Issue Detection** - Problem identification\n• **⚡ Optimization** - Network improvements\n\n**Note**: Configure OpenRouter or DeepSeek for advanced AI capabilities.`;
+        }
+    }
+    
+    // Get current dashboard data
+    getCurrentDashboardData() {
+        // Try to get data from various global variables
+        const data = window.allData || window.filteredData || window.currentData || [];
+        
+        // Also check for data in table
+        const tableBody = document.querySelector('#tableBody');
+        const rows = tableBody ? tableBody.querySelectorAll('tr:not(.no-data)') : [];
+        
+        return {
+            data: data,
+            rowCount: rows.length,
+            hasValidData: data && data.length > 0
+        };
+    }
+    
+    // Format data for AI analysis
+    formatDataForAI(currentData) {
+        if (!currentData.hasValidData) {
+            return {
+                hasData: false,
+                summary: 'No data currently loaded',
+                recordCount: 0
+            };
+        }
+        
+        const data = currentData.data;
+        const recordCount = data.length;
+        
+        // Analyze the data structure
+        const sampleRecord = data[0] || {};
+        const fields = Object.keys(sampleRecord);
+        
+        // Basic analysis
+        const locationFields = fields.filter(f => f.toLowerCase().includes('location') || f.toLowerCase().includes('address') || f.toLowerCase().includes('province') || f.toLowerCase().includes('barangay'));
+        const techFields = fields.filter(f => f.toLowerCase().includes('technology') || f.toLowerCase().includes('type') || f.toLowerCase().includes('provider'));
+        const coordFields = fields.filter(f => f.toLowerCase().includes('lat') || f.toLowerCase().includes('lng') || f.toLowerCase().includes('longitude'));
+        
+        // Generate summaries
+        const locationSummary = this.analyzeLocations(data, locationFields);
+        const technologySummary = this.analyzeTechnology(data, techFields);
+        const coordinateAnalysis = this.analyzeCoordinates(data, coordFields);
+        
+        return {
+            hasData: true,
+            recordCount: recordCount,
+            summary: `${recordCount} telecommunications sites with ${fields.length} data fields`,
+            dataPreview: `Fields: ${fields.slice(0, 5).join(', ')}${fields.length > 5 ? '...' : ''}`,
+            basicAnalysis: `📍 Location data: ${locationSummary}`,
+            locationSummary: locationSummary,
+            technologySummary: technologySummary,
+            issueAnalysis: coordinateAnalysis,
+            coverageInsights: `Geographic spread across ${locationFields.length > 0 ? 'multiple locations' : 'region'}`,
+            providerInsights: techFields.length > 0 ? `Multiple providers/technologies detected` : 'Provider data available',
+            optimizationSuggestions: `Review ${recordCount} sites for optimization opportunities`,
+            quickSummary: `${recordCount} sites • ${locationFields.length} location fields • ${techFields.length} tech fields`
+        };
+    }
+    
+    // Analyze location data
+    analyzeLocations(data, locationFields) {
+        if (locationFields.length === 0) return 'Location fields not clearly identified';
+        
+        const locationField = locationFields[0];
+        const locations = [...new Set(data.map(row => row[locationField]).filter(Boolean))];
+        
+        return `${locations.length} unique locations detected in ${locationField}`;
+    }
+    
+    // Analyze technology data
+    analyzeTechnology(data, techFields) {
+        if (techFields.length === 0) return 'Technology fields not clearly identified';
+        
+        const techField = techFields[0];
+        const technologies = [...new Set(data.map(row => row[techField]).filter(Boolean))];
+        
+        return `${technologies.length} different technologies/providers: ${technologies.slice(0, 3).join(', ')}${technologies.length > 3 ? '...' : ''}`;
+    }
+    
+    // Analyze coordinate data
+    analyzeCoordinates(data, coordFields) {
+        if (coordFields.length === 0) return 'No coordinate fields found - may impact mapping accuracy';
+        
+        const coordField = coordFields[0];
+        const validCoords = data.filter(row => row[coordField] && !isNaN(parseFloat(row[coordField]))).length;
+        const missingCoords = data.length - validCoords;
+        
+        if (missingCoords > 0) {
+            return `⚠️ ${missingCoords} sites missing coordinates - these won't appear on the map`;
+        } else {
+            return `✅ All ${data.length} sites have coordinate data`;
+        }
     }
 }
 
