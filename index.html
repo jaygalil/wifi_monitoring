@@ -9,56 +9,210 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Add Tailwind CSS for utility classes -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Modern Optimized Styles (commented out to prevent conflicts) -->
+    <!-- <link rel="stylesheet" href="modern-styles.css"> -->
     
     <style>
         :root {
-            --primary-color: #0071e3;
-            --secondary-color: #86868b;
-            --success-color: #34c759;
-            --warning-color: #ff9500;
-            --danger-color: #ff3b30;
-            --apple-blue: #0071e3;
-            --apple-gray: #86868b;
-            --apple-light-gray: #f5f5f7;
-            --apple-dark-gray: #1d1d1f;
-            --apple-border: #d2d2d7;
-            --apple-shadow: 0 4px 16px rgba(0,0,0,0.08);
-            --apple-shadow-hover: 0 8px 24px rgba(0,0,0,0.12);
-            --apple-radius: 12px;
-            --apple-radius-small: 8px;
-            --apple-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            /* Modern Color Palette */
+            --primary-color: #3b82f6;
+            --primary-hover: #2563eb;
+            --primary-light: #dbeafe;
+            --secondary-color: #6b7280;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #06b6d4;
+            
+            /* Neutral Colors */
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            
+            /* Background Colors */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            
+            /* Border Radius */
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --radius-2xl: 1.5rem;
+            
+            /* Transitions */
+            --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-normal: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            
+            /* Spacing */
+            --spacing-xs: 0.25rem;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+            --spacing-2xl: 3rem;
         }
 
         * {
             box-sizing: border-box;
         }
 
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--apple-light-gray);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--gray-50) 100%);
+            color: var(--gray-800);
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             font-weight: 400;
-            line-height: 1.47059;
-            letter-spacing: -0.022em;
+            line-height: 1.6;
+            letter-spacing: -0.01em;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Typography Improvements */
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 600;
+            line-height: 1.4;
+            letter-spacing: -0.025em;
+            margin-bottom: var(--spacing-md);
+            color: var(--gray-900);
+        }
+
+        h1 { font-size: 2.25rem; }
+        h2 { font-size: 1.875rem; }
+        h3 { font-size: 1.5rem; }
+        h4 { font-size: 1.25rem; }
+        h5 { font-size: 1.125rem; }
+        h6 { font-size: 1rem; }
+
+        p {
+            margin-bottom: var(--spacing-md);
+            line-height: 1.7;
+        }
+
+        small {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+        }
+
+        /* Focus styles for accessibility */
+        :focus-visible {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+            border-radius: var(--radius-sm);
         }
 
         .navbar {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--apple-border);
-            box-shadow: none;
-            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: var(--shadow-sm);
+            padding: 0.75rem 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+            transition: var(--transition-normal);
+        }
+
+        .navbar:hover {
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: var(--shadow-md);
         }
 
         .navbar-brand {
-            font-weight: 600;
+            font-weight: 700;
+            font-size: 1.375rem;
+            color: var(--gray-900) !important;
+            letter-spacing: -0.025em;
+            transition: var(--transition-fast);
+            text-decoration: none;
+        }
+
+        .navbar-brand:hover {
+            color: var(--primary-color) !important;
+            transform: translateY(-1px);
+        }
+
+        .navbar-brand i {
+            background: linear-gradient(135deg, var(--primary-color), var(--info-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-right: 0.75rem;
             font-size: 1.25rem;
-            color: var(--apple-dark-gray) !important;
-            letter-spacing: -0.022em;
+        }
+
+        /* Navigation Indicator */
+        .nav-indicator {
+            position: relative;
+        }
+
+        .indicator-dot {
+            width: 8px;
+            height: 8px;
+            background: linear-gradient(135deg, var(--success-color), var(--info-color));
+            border-radius: 50%;
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            background: transparent;
+            border-radius: var(--radius-md);
+            padding: 0.5rem 0.75rem;
+            transition: var(--transition-fast);
+        }
+
+        .mobile-menu-btn:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        @media (max-width: 1024px) {
+            .mobile-menu-btn {
+                display: inline-flex;
+            }
         }
 
         .dashboard-container {
@@ -67,24 +221,91 @@
         }
 
         .sidebar {
-            background: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border-right: 1px solid var(--apple-border);
-            min-height: calc(100vh - 56px);
+            border-right: 1px solid #d2d2d7;
+            min-height: calc(100vh - 76px);
             padding: 1.5rem;
             overflow-y: auto;
+            transition: var(--transition-normal);
+            position: relative;
+            z-index: 1020;
+        }
+
+        /* Mobile sidebar styles */
+        @media (max-width: 1024px) {
+            .sidebar {
+                position: fixed;
+                top: 76px;
+                left: -100%;
+                width: 320px;
+                height: calc(100vh - 76px);
+                box-shadow: var(--shadow-xl);
+                border-right: none;
+                z-index: 1040;
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.show {
+                left: 0;
+                transform: translateX(0);
+            }
+            
+            .sidebar-overlay {
+                position: fixed;
+                top: 76px;
+                left: 0;
+                width: 100vw;
+                height: calc(100vh - 76px);
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 1030;
+                opacity: 0;
+                visibility: hidden;
+                transition: var(--transition-normal);
+            }
+            
+            .sidebar-overlay.show {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background-color: var(--gray-300);
+            border-radius: 3px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background-color: var(--gray-400);
         }
 
         .main-content {
             padding: 0;
-            height: calc(100vh - 56px);
+            height: calc(100vh - 76px);
             overflow: hidden;
+            transition: var(--transition-normal);
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                width: 100%;
+                margin-left: 0;
+            }
         }
 
         .map-container {
             height: 50%;
             position: relative;
+            min-height: 300px;
         }
 
         .table-container {
@@ -94,7 +315,86 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            min-height: 360px; /* Ensure comfortable minimum height */
+            min-height: 300px;
+        }
+
+        /* Table controls improvements */
+        .table-controls {
+            padding: 1rem 1.5rem;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--gray-200);
+            flex-shrink: 0;
+        }
+
+        .table-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: auto;
+        }
+
+        .table-wrapper::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-track {
+            background: var(--gray-100);
+        }
+
+        .table-wrapper::-webkit-scrollbar-thumb {
+            background-color: var(--gray-300);
+            border-radius: 4px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-thumb:hover {
+            background-color: var(--gray-400);
+        }
+
+        /* Responsive table improvements */
+        @media (max-width: 768px) {
+            .table-controls .row > div {
+                margin-bottom: 0.75rem;
+            }
+            
+            .table-controls .col-md-4,
+            .table-controls .col-md-3,
+            .table-controls .col-md-2 {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+            
+            .table-controls .text-end {
+                text-align: left !important;
+            }
+            
+            .map-container {
+                height: 40vh;
+                min-height: 250px;
+            }
+            
+            .table-container {
+                height: 60vh;
+                min-height: 300px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar {
+                padding: 0.5rem 1rem;
+            }
+            
+            .navbar-brand {
+                font-size: 1.125rem;
+            }
+            
+            .sidebar {
+                width: 280px;
+                padding: 1rem;
+            }
+            
+            .table-controls {
+                padding: 0.75rem 1rem;
+            }
         }
 
         #map {
@@ -114,96 +414,190 @@
         }
 
         .form-control, .form-select {
-            border: 1px solid var(--apple-border);
-            border-radius: var(--apple-radius-small);
-            padding: 0.75rem 1rem;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius-lg);
+            padding: 0.875rem 1rem;
             font-size: 0.875rem;
-            background: rgba(255, 255, 255, 0.6);
-            transition: var(--apple-transition);
-            color: var(--apple-dark-gray);
+            font-weight: 500;
+            background: var(--bg-primary);
+            transition: var(--transition-fast);
+            color: var(--gray-800);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .form-control:hover, .form-select:hover {
+            border-color: var(--gray-400);
+            box-shadow: var(--shadow-md);
         }
 
         .form-control:focus, .form-select:focus {
-            border-color: var(--apple-blue);
-            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
-            background: white;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px var(--primary-light), var(--shadow-md);
+            background: var(--bg-primary);
             outline: none;
+            transform: translateY(-1px);
         }
 
         .form-control::placeholder {
-            color: var(--apple-gray);
+            color: var(--gray-500);
+            font-weight: 400;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--gray-700);
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+            display: block;
         }
 
         .btn {
-            border-radius: var(--apple-radius-small);
-            padding: 0.75rem 1.5rem;
-            font-weight: 500;
+            border-radius: var(--radius-lg);
+            padding: 0.875rem 1.5rem;
+            font-weight: 600;
             font-size: 0.875rem;
-            transition: var(--apple-transition);
+            transition: var(--transition-fast);
             border: none;
             cursor: pointer;
             position: relative;
             overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
         }
 
         .btn-primary {
-            background: var(--apple-blue);
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
             color: white;
         }
 
         .btn-primary:hover {
-            background: #0077ed;
-            transform: translateY(-1px);
-            box-shadow: var(--apple-shadow);
+            background: linear-gradient(135deg, var(--primary-hover), var(--primary-color));
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            color: white;
         }
 
         .btn-primary:active {
-            transform: translateY(0);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
         }
 
         .btn-outline-primary {
-            border: 1px solid var(--apple-blue);
-            color: var(--apple-blue);
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
             background: transparent;
         }
 
         .btn-outline-primary:hover {
-            background: var(--apple-blue);
+            background: var(--primary-color);
             color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-outline-secondary {
+            border: 2px solid var(--gray-400);
+            color: var(--gray-600);
+            background: transparent;
+        }
+
+        .btn-outline-secondary:hover {
+            background: var(--gray-100);
+            border-color: var(--gray-500);
+            color: var(--gray-700);
             transform: translateY(-1px);
-            box-shadow: var(--apple-shadow);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #059669);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #059669, var(--success-color));
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.8125rem;
+        }
+
+        .btn-lg {
+            padding: 1rem 2rem;
+            font-size: 1rem;
         }
 
         .stats-card {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-radius: var(--apple-radius);
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            box-shadow: var(--apple-shadow);
-            border: 1px solid var(--apple-border);
-            transition: var(--apple-transition);
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--gray-50) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-lg);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--gray-200);
+            transition: var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stats-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), var(--info-color), var(--success-color));
         }
 
         .stats-card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--apple-shadow-hover);
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: var(--shadow-2xl);
+            border-color: var(--primary-color);
         }
 
         .stats-number {
-            font-size: 2.5rem;
-            font-weight: 600;
-            color: var(--apple-dark-gray);
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--gray-900), var(--primary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             margin: 0;
             line-height: 1;
+            font-family: 'JetBrains Mono', monospace;
         }
 
         .stats-label {
-            color: var(--apple-gray);
+            color: var(--gray-600);
             font-size: 0.875rem;
-            margin: 0.5rem 0 0 0;
-            font-weight: 500;
+            margin: 0.75rem 0 0 0;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         .loading-overlay {
@@ -212,12 +606,14 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 1000;
-            flex-direction: column;
+            border-radius: var(--radius-lg);
         }
 
         .spinner {
@@ -240,10 +636,10 @@
             background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            border-radius: var(--apple-radius);
+            border-radius: 12px;
             margin: 1rem;
-            border: 1px solid var(--apple-border);
-            min-height: 200px; /* Ensure minimum height for empty tables */
+            border: 1px solid #d2d2d7;
+            min-height: 200px;
             display: flex;
             flex-direction: column;
         }
@@ -251,7 +647,7 @@
         .table-controls {
             padding: 1rem;
             background: transparent;
-            border-bottom: 1px solid var(--apple-border);
+            border-bottom: 1px solid #d2d2d7;
         }
         
         .column-visibility-panel {
@@ -289,33 +685,45 @@
         }
 
         .table th {
-            background: rgba(245, 245, 247, 0.8);
-            border-bottom: 1px solid var(--apple-border);
-            font-weight: 600;
-            color: var(--apple-dark-gray);
+            background: linear-gradient(135deg, var(--gray-100) 0%, var(--gray-50) 100%);
+            border-bottom: 2px solid var(--gray-200);
+            font-weight: 700;
+            color: var(--gray-800);
             position: sticky;
             top: 0;
             z-index: 10;
-            padding: 1rem 0.75rem;
+            padding: 1.25rem 1rem;
             font-size: 0.8125rem;
-            text-transform: none;
-            letter-spacing: -0.016em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-top: 1px solid var(--gray-200);
+            white-space: nowrap;
         }
 
         .table td {
-            padding: 1rem 0.75rem;
-            border-top: 1px solid var(--apple-border);
-            color: var(--apple-dark-gray);
-            transition: var(--apple-transition);
+            padding: 1.25rem 1rem;
+            border-top: 1px solid var(--gray-200);
+            color: var(--gray-700);
+            transition: var(--transition-fast);
+            font-weight: 500;
         }
 
         .table tbody tr {
-            transition: var(--apple-transition);
+            transition: var(--transition-fast);
         }
 
         .table tbody tr:hover {
-            background: rgba(0, 113, 227, 0.05);
-            transform: scale(1.01);
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(59, 130, 246, 0.03) 100%);
+            transform: translateX(4px);
+            box-shadow: 4px 0 12px rgba(59, 130, 246, 0.1);
+        }
+
+        .table tbody tr:nth-child(even) {
+            background: rgba(248, 250, 252, 0.5);
+        }
+
+        .table tbody tr:nth-child(even):hover {
+            background: linear-gradient(135deg, var(--primary-light) 0%, rgba(59, 130, 246, 0.05) 100%);
         }
 
         .status-badge {
@@ -328,20 +736,34 @@
             gap: 0.25rem;
         }
 
-        /* Enhanced Filter Styles */
+        /* Enhanced Filter Sections */
         .filter-section {
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-radius: var(--apple-radius);
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            border: 1px solid var(--apple-border);
-            transition: var(--apple-transition);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-xl);
+            border: 1px solid var(--gray-200);
+            transition: var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .filter-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary-color), var(--info-color));
         }
 
         .filter-section:hover {
-            box-shadow: var(--apple-shadow);
+            box-shadow: var(--shadow-xl);
+            transform: translateY(-2px);
+            border-color: var(--primary-color);
         }
 
         .filter-header {
@@ -472,7 +894,7 @@
         @keyframes slideInUp {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(30px);
             }
             to {
                 opacity: 1;
@@ -481,16 +903,112 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from { 
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to { 
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -1000px 0;
+            }
+            100% {
+                background-position: 1000px 0;
+            }
         }
 
         .animate-slide-up {
-            animation: slideInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: slideInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .animate-fade-in {
-            animation: fadeIn 0.3s ease-out;
+            animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .animate-slide-left {
+            animation: slideInLeft 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .animate-slide-right {
+            animation: slideInRight 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        /* Loading Skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, var(--gray-200) 25%, var(--gray-100) 50%, var(--gray-200) 75%);
+            background-size: 2000px 100%;
+            animation: shimmer 2s infinite;
+        }
+
+        /* Hover Glow Effect */
+        .glow-on-hover {
+            position: relative;
+            transition: var(--transition-normal);
+        }
+
+        .glow-on-hover::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--primary-color), var(--info-color), var(--success-color), var(--warning-color));
+            border-radius: inherit;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity var(--transition-normal);
+        }
+
+        .glow-on-hover:hover::before {
+            opacity: 0.7;
+            animation: pulse 2s ease-in-out infinite;
         }
             border-radius: 1rem;
             font-size: 0.75rem;
@@ -554,16 +1072,75 @@
                 height: 55%;
             }
         }
-
-        .mobile-menu-btn {
-            display: none;
-        }
-
-        @media (max-width: 768px) {
-            .mobile-menu-btn {
-                display: block;
+            
+            .stats-number {
+                font-size: 2.5rem;
+            }
+            
+            .filter-section {
+                padding: var(--spacing-lg);
+            }
+            
+            .btn {
+                padding: 0.75rem 1.25rem;
+                font-size: 0.8125rem;
+            }
+            
+            .form-control, .form-select {
+                padding: 0.75rem;
+                font-size: 0.875rem;
             }
         }
+
+        @media (max-width: 480px) {
+            .sidebar {
+                width: 95vw;
+                left: -100%;
+            }
+            
+            .stats-card {
+                padding: var(--spacing-lg);
+                margin-bottom: var(--spacing-md);
+            }
+            
+            .stats-number {
+                font-size: 2rem;
+            }
+            
+            .table-container {
+                font-size: 0.8125rem;
+            }
+            
+            .btn-sm {
+                padding: 0.375rem 0.75rem;
+                font-size: 0.75rem;
+            }
+            
+            .form-control, .form-select {
+                padding: 0.625rem;
+            }
+        }
+
+        /* Touch-friendly interactions */
+        @media (hover: none) and (pointer: coarse) {
+            .btn {
+                min-height: 44px;
+                min-width: 44px;
+            }
+            
+            .form-control, .form-select {
+                min-height: 44px;
+            }
+            
+            .stats-card:hover {
+                transform: none;
+            }
+            
+            .btn:hover {
+                transform: none;
+            }
+        }
+
 
         .custom-marker-icon {
             background: transparent !important;
@@ -621,77 +1198,149 @@
             margin-bottom: 0.5rem;
         }
 
+        /* Loading overlay improvements */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
         .pagination-container {
             padding: 1rem;
             background: white;
             border-top: 1px solid #e2e8f0;
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
+            flex-shrink: 0;
         }
 
         .pagination {
             margin: 0;
         }
+
+        .mobile-menu-btn {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .pagination-container {
+                flex-direction: column;
+                gap: 0.75rem;
+                text-align: center;
+            }
+        }
     </style>
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
+    <nav class="navbar navbar-expand-lg animate-slide-up">
         <div class="container-fluid">
-            <button class="btn btn-outline-light mobile-menu-btn me-2" type="button" onclick="toggleSidebar()">
+            <button class="btn btn-outline-primary mobile-menu-btn me-3 glow-on-hover" type="button" onclick="toggleSidebar()">
                 <i class="fas fa-bars"></i>
             </button>
-            <a class="navbar-brand" href="#">
-                <i class="fas fa-map-marked-alt me-2"></i>
-                Data Dashboard
+            <a class="navbar-brand glow-on-hover" href="#">
+                <i class="fas fa-chart-line"></i>
+                Site Tracker Dashboard
             </a>
-            <div class="navbar-nav ms-auto d-flex align-items-center">
-                <button class="btn btn-outline-light btn-sm" onclick="refreshData()">
-                    <i class="fas fa-sync-alt me-1"></i> Refresh
+            <div class="navbar-nav ms-auto d-flex align-items-center gap-3">
+                <a class="nav-link btn btn-outline-secondary btn-sm" href="dashboard.html">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span class="d-none d-md-inline ms-1">Dashboard</span>
+                </a>
+                <a class="nav-link btn btn-outline-info btn-sm" href="config.html">
+                    <i class="fas fa-cog"></i>
+                    <span class="d-none d-md-inline ms-1">Config</span>
+                </a>
+                <button class="btn btn-outline-primary btn-sm glow-on-hover" onclick="refreshData()">
+                    <i class="fas fa-sync-alt"></i>
+                    <span class="d-none d-md-inline ms-1">Refresh</span>
                 </button>
-                <button id="aiAssistantToggle" class="ai-assistant-toggle" title="🤖 AI Chat Assistant">
+                <button id="aiAssistantToggle" class="btn btn-outline-success btn-sm animate-pulse" title="🤖 AI Chat Assistant" onclick="toggleEnhancedChatPanel()">
                     <i class="fas fa-robot"></i>
-                    <span class="ai-pulse"></span>
+                    <span class="d-none d-md-inline ms-1">AI Assistant</span>
                 </button>
+                <div class="nav-indicator d-none d-lg-block">
+                    <div class="indicator-dot"></div>
+                </div>
             </div>
         </div>
     </nav>
 
     <!-- Main Container -->
     <div class="container-fluid dashboard-container">
+        <!-- Sidebar Overlay for Mobile -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+        
         <div class="row g-0">
-            <!-- Sidebar -->
-            <div class="col-lg-3 sidebar" id="sidebar">
+            <!-- Main Content - Full Width -->
+            <div class="col-12 main-content animate-slide-right">
                 <!-- API Configuration -->
-                <div class="filter-group">
-                    <h5><i class="fas fa-cog me-2"></i>API Configuration</h5>
-                    <div class="alert alert-info">
-                        <small>
-                            <strong>Setup Instructions:</strong><br>
-                            1. Enable Google Sheets API in Google Cloud Console<br>
-                            2. Create API key with Sheets API access<br>
-                            3. Make your sheet publicly viewable
-                        </small>
+                <div class="filter-section glow-on-hover">
+                    <div class="filter-header">
+                        <h5 class="filter-title"><i class="fas fa-cog"></i>API Configuration</h5>
                     </div>
-                    <label for="apiKey">Google Sheets API Key</label>
-                    <input type="password" class="form-control" id="apiKey" placeholder="Enter your API key">
+                    <div class="alert alert-primary border-0 rounded-3 mb-4" style="background: linear-gradient(135deg, var(--primary-light) 0%, rgba(59, 130, 246, 0.1) 100%);">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-info-circle text-primary me-3 mt-1"></i>
+                            <div>
+                                <strong class="text-primary">Quick Setup Guide</strong>
+                                <ol class="mb-0 mt-2 small text-primary">
+                                    <li>Enable Google Sheets API in Console</li>
+                                    <li>Create API key with Sheets access</li>
+                                    <li>Make sheet publicly viewable</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
                     
-                    <label for="sheetId" class="mt-3">Google Sheet ID</label>
-                    <input type="text" class="form-control" id="sheetId" placeholder="Enter Google Sheet ID">
+                    <div class="mb-3">
+                        <label for="apiKey" class="form-label">
+                            <i class="fas fa-key text-warning me-2"></i>API Key
+                        </label>
+                        <input type="password" class="form-control" id="apiKey" placeholder="Enter your Google Sheets API key">
+                    </div>
                     
-                    <label for="sheetRange" class="mt-3">Sheet Range</label>
-                    <input type="text" class="form-control" id="sheetRange" value="Sheet1!A:Z" placeholder="e.g., Sheet1!A:H">
+                    <div class="mb-3">
+                        <label for="sheetId" class="form-label">
+                            <i class="fas fa-table text-success me-2"></i>Sheet ID
+                        </label>
+                        <input type="text" class="form-control" id="sheetId" placeholder="Google Sheet ID from URL">
+                    </div>
                     
-                    <button class="btn btn-primary w-100 mt-3" onclick="loadSheetData()">
-                        <i class="fas fa-download me-2"></i>Load Data
+                    <div class="mb-4">
+                        <label for="sheetRange" class="form-label">
+                            <i class="fas fa-crop text-info me-2"></i>Data Range
+                        </label>
+                        <input type="text" class="form-control" id="sheetRange" value="Sheet1!A:Z" placeholder="e.g., Sheet1!A:H">
+                    </div>
+                    
+                    <button class="btn btn-primary w-100 btn-lg glow-on-hover" onclick="loadSheetData()">
+                        <i class="fas fa-cloud-download-alt"></i>
+                        Load Sheet Data
                     </button>
                 </div>
 
                 <!-- Statistics -->
-                <div class="stats-card">
+                <div class="stats-card animate-fade-in glow-on-hover">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <i class="fas fa-database text-primary fa-lg"></i>
+                        <span class="badge bg-success animate-pulse">Live</span>
+                    </div>
                     <p class="stats-number" id="totalRecords">0</p>
-                    <p class="stats-label">Total Records</p>
+                    <p class="stats-label">Total Records Loaded</p>
                 </div>
 
                 <!-- Enhanced Filters -->
@@ -825,24 +1474,34 @@
             </div>
 
             <!-- Main Content -->
-            <div class="col-lg-9 main-content">
+            <div class="col-lg-9 main-content animate-slide-right">
                 <!-- Map Container -->
-                <div class="map-container">
+                <div class="map-container animate-fade-in">
                     <div id="map"></div>
-                    <div class="loading-overlay" id="mapLoading" style="display: none;">
-                        <div class="spinner"></div>
-                        <p class="mt-3">Loading map data...</p>
+                    <div class="loading-overlay animate-pulse" id="mapLoading" style="display: none;">
+                        <div class="d-flex flex-column align-items-center">
+                            <div class="spinner-grow text-primary mb-3" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <h6 class="text-primary mb-2">Loading Interactive Map</h6>
+                            <p class="text-muted small mb-0">Plotting data points...</p>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Table Container -->
                 <div class="table-container">
                     <div class="table-controls">
-                        <div class="row align-items-center">
-                            <div class="col-md-4">
-                                <input type="text" class="form-control" id="searchInput" placeholder="Search records...">
+                        <div class="row align-items-center g-3">
+                            <div class="col-md-4 col-12">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="fas fa-search text-muted"></i>
+                                    </span>
+                                    <input type="text" class="form-control border-start-0" id="searchInput" placeholder="Search records...">
+                                </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-3 col-6">
                                 <select class="form-select" id="recordsPerPage" onchange="changeRecordsPerPage()">
                                     <option value="15" selected>15 records</option>
                                     <option value="25">25 records</option>
@@ -850,23 +1509,37 @@
                                     <option value="100">100 records</option>
                                 </select>
                             </div>
-                            <div class="col-md-2">
+                            <div class="col-md-2 col-6">
                                 <button type="button" class="btn btn-outline-secondary w-100" onclick="toggleColumnVisibility()" title="Show/Hide Columns">
-                                    <i class="fas fa-columns me-1"></i>Columns
+                                    <i class="fas fa-columns me-1"></i>
+                                    <span class="d-none d-sm-inline">Columns</span>
                                 </button>
                             </div>
-                            <div class="col-md-3 text-end">
-                                <small class="text-muted" id="recordCount">Showing 0 of 0 records</small>
+                            <div class="col-md-3 col-12 text-md-end text-center">
+                                <small class="text-muted fw-medium" id="recordCount">Showing 0 of 0 records</small>
                             </div>
                         </div>
                         <!-- Column Visibility Panel -->
-                        <div class="column-visibility-panel" id="columnVisibilityPanel" style="display: none;">
-                            <div class="row" id="columnCheckboxes">
-                                <!-- Column checkboxes will be populated dynamically -->
-                            </div>
-                            <div class="d-flex justify-content-end gap-2 mt-3">
-                                <button type="button" class="btn btn-primary btn-sm" onclick="applyColumnSelection()">Apply</button>
-                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="resetColumnSelectionToDefault()">Default</button>
+                        <div class="column-visibility-panel mt-3" id="columnVisibilityPanel" style="display: none;">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-light py-2">
+                                    <h6 class="mb-0 text-secondary">
+                                        <i class="fas fa-eye me-2"></i>Column Visibility
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-2" id="columnCheckboxes">
+                                        <!-- Column checkboxes will be populated dynamically -->
+                                    </div>
+                                    <div class="d-flex justify-content-end gap-2 mt-3 pt-3 border-top">
+                                        <button type="button" class="btn btn-primary btn-sm" onclick="applyColumnSelection()">
+                                            <i class="fas fa-check me-1"></i>Apply
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="resetColumnSelectionToDefault()">
+                                            <i class="fas fa-undo me-1"></i>Default
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -901,12 +1574,13 @@
         </div>
     </div>
 
-    <!-- External JavaScript -->
+    <!-- Performance-optimized JavaScript Loading -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
     
     <!-- Configuration Scripts -->
     <script src="config.js"></script>
@@ -915,12 +1589,6 @@
     <!-- AI Assistant Integration -->
     <script src="ai-config-bridge.js"></script>
     <script src="ai-assistant.js"></script>
-    <script src="ai-advanced-features.js"></script>
-    <script src="ai-mapping-features.js"></script>
-    <script src="deepseek-fix.js"></script>
-    <script src="ai-chat-fix.js"></script>
-    <script src="enhanced-chat-panel.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
     <script>
         // Global variables
@@ -944,25 +1612,81 @@
             })
         };
 
-        // Initialize the application
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeMap();
-            setupEventListeners();
+        // Performance Optimization
+        function initializePerformance() {
+            // Preload critical resources
+            const preloadLinks = [
+                'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap',
+                'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap'
+            ];
             
-            // Auto-load configuration if available
-            if (window.autoConfig) {
-                window.autoConfig.loadConfiguration();
+            preloadLinks.forEach(href => {
+                const link = document.createElement('link');
+                link.rel = 'preload';
+                link.as = 'style';
+                link.href = href;
+                document.head.appendChild(link);
+            });
+            
+            // Add intersection observer for animations
+            if ('IntersectionObserver' in window) {
+                const animationObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('animate-fade-in');
+                        }
+                    });
+                }, { threshold: 0.1 });
+                
+                // Observe elements that should animate on scroll
+                document.querySelectorAll('.stats-card, .filter-section').forEach(el => {
+                    animationObserver.observe(el);
+                });
             }
-            document.getElementById('sheetRange').value = 'Sheet1!A:Z';
+        }
+
+        // Initialize the application with performance optimizations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize performance features
+            initializePerformance();
             
-            // Show loading status
-            showAlert(`🔄 Using your API key to load sheet data. Trying multiple methods...`, 'info');
-            
-            // Load the actual data
-            setTimeout(() => {
-                loadSheetData();
-            }, 1000);
+            // Initialize core functionality
+            requestAnimationFrame(() => {
+                initializeMap();
+                setupEventListeners();
+                
+                // Auto-load configuration if available
+                if (window.autoConfig) {
+                    window.autoConfig.loadConfiguration();
+                }
+                document.getElementById('sheetRange').value = 'Sheet1!A:Z';
+                
+                // Show enhanced loading status
+                showAlert(`🚀 Dashboard initialized! Load your data to get started.`, 'success');
+            });
         });
+        
+        // Lazy load non-critical scripts
+        function loadNonCriticalScripts() {
+            const scripts = [
+                'ai-advanced-features.js',
+                'ai-mapping-features.js',
+                'deepseek-fix.js',
+                'ai-chat-fix.js'
+            ];
+            
+            scripts.forEach((src, index) => {
+                setTimeout(() => {
+                    const script = document.createElement('script');
+                    script.src = src;
+                    script.async = true;
+                    document.body.appendChild(script);
+                }, index * 100); // Staggered loading
+            });
+        }
+        
+        // Load non-critical scripts after page load
+        window.addEventListener('load', loadNonCriticalScripts);
 
         // Initialize the map
         function initializeMap() {
@@ -1224,41 +1948,7 @@
                 loadSampleData();
             }
         }
-
-        // Load sample data for demonstration
-        function loadSampleData() {
-            console.log('Loading sample data...');
-            showLoading(true);
-            
-            // Sample data with realistic locations and information
-            const sampleData = [
-                ["Name", "Category", "Status", "Latitude", "Longitude", "Date", "Description", "Contact"],
-                ["Central Park Location", "Park", "Active", "40.7829", "-73.9654", "2024-01-15", "Popular urban park in Manhattan", "info@centralpark.com"],
-                ["Brooklyn Bridge", "Infrastructure", "Active", "40.7061", "-73.9969", "2024-01-16", "Historic suspension bridge", "nyc.gov"],
-                ["Times Square", "Commercial", "Active", "40.7580", "-73.9855", "2024-01-17", "Major commercial intersection", "timessquare.nyc"],
-                ["Statue of Liberty", "Monument", "Maintenance", "40.6892", "-74.0445", "2024-01-18", "Iconic national monument", "nps.gov"],
-                ["Empire State Building", "Commercial", "Active", "40.7484", "-73.9857", "2024-01-19", "Art Deco skyscraper", "esbnyc.com"],
-                ["High Line Park", "Park", "Active", "40.7480", "-74.0048", "2024-01-20", "Elevated linear park", "thehighline.org"],
-                ["Grand Central Terminal", "Transport", "Active", "40.7527", "-73.9772", "2024-01-21", "Historic railroad station", "grandcentralterminal.com"],
-                ["One World Trade Center", "Commercial", "Active", "40.7127", "-74.0134", "2024-01-22", "Main building of WTC complex", "onewtc.com"],
-                ["Museum of Modern Art", "Culture", "Active", "40.7614", "-73.9776", "2024-01-23", "Modern and contemporary art museum", "moma.org"],
-                ["Central Park Zoo", "Park", "Active", "40.7678", "-73.9718", "2024-01-24", "Small zoo in Central Park", "centralparkzoo.com"],
-                ["Bryant Park", "Park", "Active", "40.7535", "-73.9825", "2024-01-25", "Privately managed public park", "bryantpark.org"],
-                ["Washington Square Park", "Park", "Active", "40.7308", "-73.9973", "2024-01-26", "Public park in Greenwich Village", "nyc.gov"],
-                ["Flatiron Building", "Commercial", "Active", "40.7411", "-73.9897", "2024-01-27", "Triangular steel-framed building", "flatironbuilding.com"],
-                ["Chrysler Building", "Commercial", "Active", "40.7517", "-73.9753", "2024-01-28", "Art Deco-style skyscraper", "chryslerbuilding.com"],
-                ["Rockefeller Center", "Commercial", "Active", "40.7587", "-73.9787", "2024-01-29", "Large complex of commercial buildings", "rockefellercenter.com"],
-                ["St. Patrick's Cathedral", "Culture", "Active", "40.7585", "-73.9752", "2024-01-30", "Neo-Gothic-style Catholic cathedral", "saintpatrickscathedral.org"],
-                ["New York Public Library", "Culture", "Active", "40.7532", "-73.9822", "2024-01-31", "Public library system", "nypl.org"],
-                ["Madison Square Garden", "Entertainment", "Active", "40.7505", "-73.9934", "2024-02-01", "Multi-purpose indoor arena", "msg.com"],
-                ["Lincoln Center", "Culture", "Active", "40.7724", "-73.9836", "2024-02-02", "Performing arts complex", "lincolncenter.org"]
-            ];
-            
-            console.log('Sample data loaded:', sampleData.length - 1, 'records');
-            processSheetData(sampleData);
-            showAlert(`✅ Successfully loaded ${sampleData.length - 1} sample records!`, 'success');
-            showLoading(false);
-        }
+        
         async function loadSheetData() {
             const apiKey = document.getElementById('apiKey').value.trim();
             const sheetId = document.getElementById('sheetId').value.trim();
@@ -1953,6 +2643,22 @@
             updatePagination();
         }
 
+        // Toggle mobile sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            sidebar.classList.toggle('show');
+            overlay.classList.toggle('show');
+            
+            // Prevent body scroll when sidebar is open on mobile
+            if (sidebar.classList.contains('show')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        }
+
         // Toggle column visibility panel
         function toggleColumnVisibility() {
             const panel = document.getElementById('columnVisibilityPanel');
@@ -2411,11 +3117,8 @@
             }
         }
 
-        // Toggle sidebar for mobile
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('show');
-        }
+        // Toggle sidebar for mobile (updated version)
+        // This function is already defined above with full functionality
 
         // Show loading overlay
         function showLoading(show) {
@@ -2431,28 +3134,40 @@
 
         // Show alert messages
         function showAlert(message, type = 'info') {
-            // Remove existing alerts
-            const existingAlerts = document.querySelectorAll('.alert');
-            existingAlerts.forEach(alert => alert.remove());
-            
-            // Create new alert
-            const alert = document.createElement('div');
-            alert.className = `alert alert-${type} alert-dismissible fade show`;
-            alert.innerHTML = `
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            
-            // Insert at top of sidebar
-            const sidebar = document.getElementById('sidebar');
-            sidebar.insertBefore(alert, sidebar.firstChild);
-            
-            // Auto-dismiss after 5 seconds
-            setTimeout(() => {
-                if (alert.parentNode) {
-                    alert.remove();
-                }
-            }, 5000);
+            // Use the centralized toast manager instead of sidebar alerts
+            if (window.toastManager) {
+                const title = type === 'success' ? '✅ Success' : 
+                             type === 'warning' ? '⚠️ Warning' : 
+                             type === 'error' ? '❌ Error' : 
+                             '💡 Info';
+                
+                window.toastManager.show({
+                    title: title,
+                    message: message,
+                    type: type,
+                    duration: 5000
+                });
+            } else {
+                // Fallback to sidebar alerts if toast manager not loaded
+                const existingAlerts = document.querySelectorAll('.alert');
+                existingAlerts.forEach(alert => alert.remove());
+                
+                const alert = document.createElement('div');
+                alert.className = `alert alert-${type} alert-dismissible fade show`;
+                alert.innerHTML = `
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                
+                const sidebar = document.getElementById('sidebar');
+                sidebar.insertBefore(alert, sidebar.firstChild);
+                
+                setTimeout(() => {
+                    if (alert.parentNode) {
+                        alert.remove();
+                    }
+                }, 5000);
+            }
         }
 
         // Enhanced Filter Functions
@@ -2808,6 +3523,39 @@
             document.getElementById('searchInputEnhanced')?.addEventListener('input', applyEnhancedFilters);
             document.getElementById('dateFromFilter')?.addEventListener('change', applyEnhancedFilters);
             document.getElementById('dateToFilter')?.addEventListener('change', applyEnhancedFilters);
+        });
+    </script>
+    
+    <!-- Toast Manager -->
+    <script src="toast-manager.js"></script>
+    
+    <!-- Enhanced Chat Panel -->
+    <script src="enhanced-chat-panel.js"></script>
+    
+    <script>
+        // Initialize Enhanced Chat Panel
+        let enhancedChatPanel;
+        
+        // Function to toggle enhanced chat panel
+        function toggleEnhancedChatPanel() {
+            if (!enhancedChatPanel) {
+                enhancedChatPanel = new EnhancedChatPanel();
+                enhancedChatPanel.init();
+            }
+            
+            if (enhancedChatPanel.isVisible) {
+                enhancedChatPanel.hideChat();
+            } else {
+                enhancedChatPanel.showChat();
+            }
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize enhanced chat panel but keep it hidden
+            enhancedChatPanel = new EnhancedChatPanel();
+            enhancedChatPanel.init();
+            enhancedChatPanel.hideChat(); // Start hidden
         });
     </script>
 </body>

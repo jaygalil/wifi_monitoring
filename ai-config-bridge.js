@@ -91,16 +91,33 @@ class AIConfigBridge {
             console.warn('⚠️ Provider element not found or no value');
         }
         
-        // Read API Key - check if it's filled and not just dots
+        // Read API Key - check for both visible and stored keys
         const apiKeyElement = document.querySelector('#externalApiKey');
-        if (apiKeyElement && apiKeyElement.value && apiKeyElement.value.length > 5 && !apiKeyElement.value.includes('•')) {
-            this.apiKey = apiKeyElement.value.trim();
-            console.log('🔑 API Key found (length:', this.apiKey.length, ')');
-        } else if (apiKeyElement) {
-            // For testing purposes, assume a valid key is present if field has dots
-            if (apiKeyElement.value.includes('•') && apiKeyElement.value.length > 10) {
-                this.apiKey = 'valid-key-placeholder'; // Placeholder for masked key
-                console.log('🔑 API Key detected (masked)');
+        if (apiKeyElement) {
+            // First, try to get the real key from dataset (auto-loaded keys)
+            if (apiKeyElement.dataset.realKey) {
+                this.apiKey = apiKeyElement.dataset.realKey;
+                console.log('🔑 Real API Key found from secure config (length:', this.apiKey.length, ')');
+            }
+            // Otherwise, check if user entered a key directly
+            else if (apiKeyElement.value && apiKeyElement.value.length > 5 && !apiKeyElement.value.includes('•')) {
+                this.apiKey = apiKeyElement.value.trim();
+                console.log('🔑 API Key entered by user (length:', this.apiKey.length, ')');
+            }
+            // Check for masked keys (dots) - indicates auto-loaded
+            else if (apiKeyElement.value.includes('•') && apiKeyElement.value.length > 10) {
+                // Try to get from config if available
+                const config = window.SITE_TRACKER_CONFIG;
+                if (config && config.ai) {
+                    const provider = this.aiProvider || 'openrouter';
+                    if (provider === 'openrouter' && config.ai.openrouterApiKey && !config.ai.openrouterApiKey.includes('your-openrouter-key-here')) {
+                        this.apiKey = config.ai.openrouterApiKey;
+                        console.log('🔑 API Key loaded from config.js (OpenRouter)');
+                    } else if (provider === 'deepseek' && config.ai.deepseekApiKey && !config.ai.deepseekApiKey.includes('your-deepseek-key-here')) {
+                        this.apiKey = config.ai.deepseekApiKey;
+                        console.log('🔑 API Key loaded from config.js (DeepSeek)');
+                    }
+                }
             }
         } else {
             console.warn('⚠️ API Key element not found');

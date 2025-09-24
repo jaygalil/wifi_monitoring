@@ -47,11 +47,13 @@ class AutoConfigLoader {
         }
     }
 
-    // Load from config.js file (most convenient)
+    // Load from config.js file (most convenient and secure)
     loadFromConfigFile() {
         const config = window.SITE_TRACKER_CONFIG;
         
-        if (config.ai.autoLoadApiKey && config.ai.deepseekApiKey) {
+        console.log('🔄 Loading secure configuration from config.js...');
+        
+        if (config.ai.autoLoadApiKey) {
             this.autoLoadAIConfig(config.ai);
         }
         
@@ -64,55 +66,86 @@ class AutoConfigLoader {
         }
         
         this.isEnabled = true;
-        console.log('✅ Configuration loaded from config file');
+        console.log('✅ Secure configuration loaded from config file');
+        
+        // Show success notification
+        this.showSecureConfigNotification();
     }
 
-    // Auto-load AI configuration
+    // Auto-load AI configuration securely
     autoLoadAIConfig(aiConfig) {
-        if (!window.advancedAI) {
+        // Wait for both AI systems to be available
+        if (!window.advancedAI && !document.getElementById('aiProvider')) {
             console.log('⏳ Waiting for AI system to initialize...');
             setTimeout(() => this.autoLoadAIConfig(aiConfig), 1000);
             return;
         }
 
         try {
+            console.log('🔑 Auto-loading AI configuration securely...');
+            
             // Set provider
             if (aiConfig.defaultProvider) {
-                window.advancedAI.currentProvider = aiConfig.defaultProvider;
+                // Update AI system if available
+                if (window.advancedAI) {
+                    window.advancedAI.currentProvider = aiConfig.defaultProvider;
+                }
                 
                 // Update UI if available
                 const providerSelect = document.getElementById('aiProvider');
                 if (providerSelect) {
                     providerSelect.value = aiConfig.defaultProvider;
+                    providerSelect.classList.add('auto-loaded');
+                    // Trigger the change event to update the UI
+                    if (window.advancedAI && window.advancedAI.changeProvider) {
+                        window.advancedAI.changeProvider(aiConfig.defaultProvider);
+                    }
                 }
+                
+                console.log('🔍 AI Provider set to:', aiConfig.defaultProvider);
             }
 
             // Set API key based on provider
-            if (aiConfig.defaultProvider === 'openrouter' && aiConfig.openrouterApiKey) {
-                window.advancedAI.apiConfigurations.openrouter.apiKey = aiConfig.openrouterApiKey;
+            let apiKeyToUse = null;
+            
+            if (aiConfig.defaultProvider === 'openrouter' && aiConfig.openrouterApiKey && !aiConfig.openrouterApiKey.includes('your-openrouter-key-here')) {
+                apiKeyToUse = aiConfig.openrouterApiKey;
                 
-                // Set default model
-                if (aiConfig.defaultModel) {
-                    window.advancedAI.apiConfigurations.openrouter.model = aiConfig.defaultModel;
+                // Update AI system
+                if (window.advancedAI) {
+                    window.advancedAI.apiConfigurations.openrouter.apiKey = apiKeyToUse;
+                    
+                    // Set default model
+                    if (aiConfig.defaultModel) {
+                        window.advancedAI.apiConfigurations.openrouter.model = aiConfig.defaultModel;
+                    }
                 }
                 
-                // Update UI if available
+                console.log('🔑 OpenRouter API key auto-loaded');
+            } else if (aiConfig.deepseekApiKey && !aiConfig.deepseekApiKey.includes('your-deepseek-key-here')) {
+                apiKeyToUse = aiConfig.deepseekApiKey;
+                
+                // Update AI system
+                if (window.advancedAI) {
+                    window.advancedAI.apiConfigurations.deepseek.apiKey = apiKeyToUse;
+                }
+                
+                console.log('🔑 DeepSeek API key auto-loaded');
+            }
+            
+            // Update UI with masked API key (for security)
+            if (apiKeyToUse) {
                 const apiKeyInput = document.getElementById('externalApiKey');
                 if (apiKeyInput) {
-                    apiKeyInput.value = aiConfig.openrouterApiKey;
+                    // Show masked version in UI but store real key
+                    const maskedKey = apiKeyToUse.substring(0, 8) + '•'.repeat(Math.max(0, apiKeyToUse.length - 12)) + apiKeyToUse.substring(apiKeyToUse.length - 4);
+                    apiKeyInput.value = maskedKey;
+                    apiKeyInput.classList.add('auto-loaded');
+                    apiKeyInput.title = 'API Key auto-loaded from secure config';
+                    
+                    // Store the real key for the AI Configuration Bridge
+                    apiKeyInput.dataset.realKey = apiKeyToUse;
                 }
-                
-                console.log('🤖 OpenRouter API key auto-loaded');
-            } else if (aiConfig.deepseekApiKey) {
-                window.advancedAI.apiConfigurations.deepseek.apiKey = aiConfig.deepseekApiKey;
-                
-                // Update UI if available
-                const apiKeyInput = document.getElementById('externalApiKey');
-                if (apiKeyInput) {
-                    apiKeyInput.value = aiConfig.deepseekApiKey;
-                }
-                
-                console.log('🤖 DeepSeek API key auto-loaded');
             }
 
             // Auto-connect if enabled
@@ -481,10 +514,76 @@ Continue?
 
         console.log('✅ Quick setup completed');
     }
+    
+    // Show secure configuration notification
+    showSecureConfigNotification() {
+        setTimeout(() => {
+            if (document.body) {
+                // Use centralized toast manager if available
+                if (window.toastManager) {
+                    window.toastManager.show({
+                        title: '🔑 Secure Auto-Config Loaded',
+                        message: 'Your API keys have been securely loaded from config.js. They\'re stored locally and masked in the UI for security.',
+                        type: 'success',
+                        duration: 5000,
+                        icon: 'fas fa-shield-alt'
+                    });
+                } else {
+                    // Fallback to original notification method
+                    const notification = document.createElement('div');
+                    notification.style.cssText = `
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                        color: white;
+                        padding: 15px 20px;
+                        border-radius: 12px;
+                        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+                        z-index: 10000;
+                        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+                        font-size: 14px;
+                        max-width: 350px;
+                        animation: slideIn 0.3s ease;
+                    `;
+                    
+                    notification.innerHTML = `
+                        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                            <i class="fas fa-shield-alt" style="margin-right: 8px; font-size: 16px;"></i>
+                            <strong>🔑 Secure Auto-Config Loaded</strong>
+                        </div>
+                        <div style="font-size: 13px; opacity: 0.9; line-height: 1.4;">
+                            Your API keys have been securely loaded from config.js. They're stored locally and masked in the UI for security.
+                        </div>
+                    `;
+                    
+                    document.body.appendChild(notification);
+                    
+                    // Auto-remove after 5 seconds
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.style.animation = 'fadeOut 0.3s ease';
+                            setTimeout(() => notification.remove(), 300);
+                        }
+                    }, 5000);
+                }
+            }
+        }, 2000);
+    }
 }
 
 // Initialize auto-configuration
 const autoConfig = new AutoConfigLoader();
 window.autoConfig = autoConfig;
 
-console.log('⚡ Auto-Configuration system ready!');
+const additionalStyles = `
+    <style>
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateX(0); }
+            to { opacity: 0; transform: translateX(100%); }
+        }
+    </style>
+`;
+document.head.insertAdjacentHTML('beforeend', additionalStyles);
+
+console.log('⚡ Secure Auto-Configuration system ready!');

@@ -304,50 +304,62 @@
 
     // Show notification about chat
     function showChatNotification() {
-        const notification = document.createElement('div');
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 15px 20px;
-            border-radius: 10px;
-            z-index: 10000;
-            font-size: 14px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-            max-width: 300px;
-            animation: slideIn 0.5s ease;
-        `;
-        
-        notification.innerHTML = `
-            <div style="display: flex; align-items: center; margin-bottom: 8px;">
-                <i class="fas fa-robot" style="margin-right: 8px; font-size: 16px;"></i>
-                <strong>AI Chat Ready!</strong>
-            </div>
-            <div style="font-size: 13px;">
-                Look for the 🤖 robot button in the bottom-right corner to start chatting with your AI assistant!
-            </div>
-        `;
-        
-        document.body.appendChild(notification);
-        
-        // Add slide-in animation
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideIn {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-        `;
-        document.head.appendChild(style);
-        
-        // Remove after 5 seconds
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.remove();
-            }
-        }, 5000);
+        // Use centralized toast manager if available
+        if (window.toastManager) {
+            window.toastManager.show({
+                title: '🤖 AI Chat Ready!',
+                message: 'Look for the 🤖 robot button in the bottom-right corner to start chatting with your AI assistant!',
+                type: 'info',
+                duration: 5000,
+                icon: 'fas fa-robot'
+            });
+        } else {
+            // Fallback to original notification method
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 15px 20px;
+                border-radius: 10px;
+                z-index: 10000;
+                font-size: 14px;
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+                max-width: 300px;
+                animation: slideIn 0.5s ease;
+            `;
+            
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                    <i class="fas fa-robot" style="margin-right: 8px; font-size: 16px;"></i>
+                    <strong>AI Chat Ready!</strong>
+                </div>
+                <div style="font-size: 13px;">
+                    Look for the 🤖 robot button in the bottom-right corner to start chatting with your AI assistant!
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Add slide-in animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
     }
 
     // Initialize when DOM is ready
