@@ -1,4 +1,4 @@
-// Enhanced Chat Panel - Side-mounted, resizable, draggable chat interface
+resizable, draggable chat interface
 // Provides a better chat experience with flexible sizing and positioning
 
 class EnhancedChatPanel {
@@ -1521,4 +1521,4 @@ class EnhancedChatPanel {
                     box-shadow: 5px 0 25px rgba(0, 0, 0, 0.1);
                 }
 
-                .enhanced
+                .enhanced-chat-panel.dock-left.visible

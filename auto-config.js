@@ -458,10 +458,10 @@ Continue?
             window.advancedAI.changeProvider('deepseek');
         }
 
-        // Set API key
+        // Set API key from secure config
         const apiKeyInput = document.getElementById('externalApiKey');
-        if (apiKeyInput) {
-            apiKeyInput.value = 'sk-94c4febd21ba488e8bdb499c52c3e8eb';
+        if (apiKeyInput && window.CONFIG && window.CONFIG.DEEPSEEK_API_KEY) {
+            apiKeyInput.value = window.CONFIG.DEEPSEEK_API_KEY;
             apiKeyInput.classList.add('auto-loaded');
         }
 

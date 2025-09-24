@@ -675,10 +675,10 @@
                         </small>
                     </div>
                     <label for="apiKey">Google Sheets API Key</label>
-                    <input type="password" class="form-control" id="apiKey" placeholder="Enter your API key" value="AIzaSyAcStfXXwdeh2d_MyF0orLz0cvp1HAWjZY">
+                    <input type="password" class="form-control" id="apiKey" placeholder="Enter your API key">
                     
                     <label for="sheetId" class="mt-3">Google Sheet ID</label>
-                    <input type="text" class="form-control" id="sheetId" placeholder="Enter Google Sheet ID" value="1aNEX-jyWYXXPL-RjJ-18-XC3Iad3GvxFHyrMajgjHUA">
+                    <input type="text" class="form-control" id="sheetId" placeholder="Enter Google Sheet ID">
                     
                     <label for="sheetRange" class="mt-3">Sheet Range</label>
                     <input type="text" class="form-control" id="sheetRange" value="Sheet1!A:Z" placeholder="e.g., Sheet1!A:H">
@@ -947,9 +947,10 @@
             initializeMap();
             setupEventListeners();
             
-            // Pre-fill with your new API key and sheet
-            document.getElementById('apiKey').value = 'AIzaSyAcStfXXwdeh2d_MyFOorLzOcvplHAWjZY';
-            document.getElementById('sheetId').value = '1aNEX-jyWYXXPL-RjJ-18-XC3iad3GvxFHyrMajgjHUA';
+            // Auto-load configuration if available
+            if (window.autoConfig) {
+                window.autoConfig.loadConfiguration();
+            }
             document.getElementById('sheetRange').value = 'Sheet1!A:Z';
             
             // Show loading status
@@ -1084,20 +1085,9 @@
             showAlert('Sample data loaded successfully!', 'info');
         }
 
-        // Service account configuration
-        const SERVICE_ACCOUNT = {
-            type: "service_account",
-            project_id: "plucky-mode-429012-s6",
-            private_key_id: "c03f99152d369de3a1a70d0daebfacab8e5ccf4e",
-            private_key: "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDcdWcVUKxfNDee\nT5aC71eDwjW1JG+tFv5z5HNjoOiIQ3v00g0trp/9HagsmOG+hLZqwaren00t7OMT\ny9NOEfIDIgaBnYhyLWahTZDYzI920oGDvDH3Fa7jqb60dGa+AKkQbJ47dTcvKhCv\nS2MD5ns5JVZOQ6KBnHYlg5ogJmMFMp3QuxOhK8bWqQdvoGGz7avJCmamicTMjy38\n5N/FHTXpZSyu522NEpBNFOgNhBFEopH0jevPZcDz9yWJQnmfK60IjS5GaGemU+hY\n8jRM0IRaWXbnAfLixAL63ISEX+LJMqY9GCEuWnR9DHZv9Vmcd56IN/eNNQb/m4oX\nDUWPRep3AgMBAAECggEAEWrofeDK+utGDlNtFE4y712A3x1lrLAO4tAkpQqZpJO/\nBOIy7q4yb2M682m8GCXQaxHUXVS1BSZcmyafkguilR3IlCVX75FntOHLH7MrDdu8\nJiYlxRw+SOK93EWqt7iXTY1krlTooGjQkFDtSJRv8t1g0BEm6ITt5AaIPvcEHBe0\nldbF6Ddnndn/94St3+Or3clqxpgBvMtlNrobKf4O2h7HAPxq/3rZVPn8pTvfpizQ\nossZ8Xh2M9yi75coY69/gvF2yfjrKfrB/FiaGWigKX4luIIPFtUDElFKWold8+BY\nNOkz8xnPKM98KfnQH5h375wGWmiIRVEvj32lMaatVQKBgQD5zQS0PIzA1x8Eur5M\nZEU4vYcRDfYlAsx/TkamhSB3yi78YXtuOOdgdVETPkTNmtlCMMkdGTe/PzndwPy2\nlhS8b8xvtMXseSd3Qj9U8XvTQn9Zzvaj2tZKy6rviU8Jdp7w+2cyqKo/ifAgOxNp\n++eY9v2WyBywqizIuw67dFIiKwKBgQDh7fkuQcYylwwCc0I+e/0BqUAdkemtYL13\nQqWL3r/hLOaMeR+xg0tGh1UiSCF3EEOSxwDzGvRZam/MjffTlvWbQ3WQuScmmGQ0\njPVh3YpbZ7e9wTYFecEk+wopDNh6VVbZgmPNNVVBJ+Hjzx3WeWZ9Quoi4XJ8Kfeq\nOnzLt00O5QKBgQDlqBNXEQPmluAxnO4vlU/+pmBy0X8m77fKotBZb7M17m/cIFM2\nNqKiD7mGE4116ZMsQ2Xilril3x74POEZjElsJOyzFmOQ0KH0BrfrBEhvJYenrZsb\ncanqAe0ZZAeCD8h4jOmHrYE4ATz+pNFocuutugXShg+6a/nYYgFdXcfVGQKBgFHc\nagcKqge2lxFkNcJyJnAtpR+RuPurK7tEmLsfUKMEI90OHh+xlNrPOlebjxSW/gT2\nui9buuGTIUMaxYsTDZbeUIDJtZfUa6pm0JpPLUyFPhwxH6PIQ+VkWIAbOWzJ8xgI\nmKTICEX9b2mdqBAIGMyWLEPLMDIw+p3hZ0pg9jjJAoGAQCQ4Uq2ngTNTsln4r8GX\n6+c5/T9xlvGk/udCz1TNZz76rqoFwecLrcPBBWrc9N7WMJ6cW1CdIjPqPjwfYuzu\nplqBGV8CJyalXpNSvOmFmPgRlKSfTT6Ur7Te4qLIK3FBnGhszK29OUeiiuWxd+0B\nMRlSydqi1kKrT0rcGgzgh78=\n-----END PRIVATE KEY-----\n",
-            client_email: "galil-740@plucky-mode-429012-s6.iam.gserviceaccount.com",
-            client_id: "103244414271824468512",
-            auth_uri: "https://accounts.google.com/o/oauth2/auth",
-            token_uri: "https://oauth2.googleapis.com/token",
-            auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
-            client_x509_cert_url: "https://www.googleapis.com/robot/v1/metadata/x509/galil-740%40plucky-mode-429012-s6.iam.gserviceaccount.com",
-            universe_domain: "googleapis.com"
-        };
+        // Service account configuration - MOVED TO SECURE CONFIG
+        // For security, service account credentials should be stored in config.js
+        // and never committed to version control
 
         // Generate JWT token for service account authentication
         async function generateAccessToken() {
@@ -1268,8 +1258,8 @@
             showLoading(false);
         }
         async function loadSheetData() {
-            const apiKey = document.getElementById('apiKey').value.trim() || 'AIzaSyAcStfXXwdeh2d_MyFOorLzOcvplHAWjZY';
-            const sheetId = document.getElementById('sheetId').value.trim() || '1aNEX-jyWYXXPL-RjJ-18-XC3iad3GvxFHyrMajgjHUA';
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const sheetId = document.getElementById('sheetId').value.trim();
             const range = document.getElementById('sheetRange').value.trim() || 'Sheet1!A:Z';
             
             showLoading(true);
