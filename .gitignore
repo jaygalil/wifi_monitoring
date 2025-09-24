@@ -1,0 +1,45 @@
+# Site Tracker Security Files
+# DO NOT commit these files - they contain sensitive API keys
+
+# Configuration files with API keys
+config.js
+local-config.js
+secrets.js
+.env
+.env.local
+
+# Log files
+*.log
+logs/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# User data files (if any)
+user-data/
+backups/
+
+# Node modules (if you add npm later)
+node_modules/
+
+# API response caches
+cache/
+*.cache
