@@ -2,26 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Site Tracker - Dashboard</title>
-    
-    <!-- SEO and Accessibility Meta Tags -->
-    <meta name="description" content="Site Tracker Dashboard - Monitor and manage your sites with real-time data visualization">
-    <meta name="keywords" content="site tracker, dashboard, monitoring, analytics">
-    <meta name="author" content="Site Tracker">
-    <meta name="theme-color" content="#3b82f6">
-    
-    <!-- External CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site Tracker</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css" />
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Tailwind Configuration -->
     <script>
         tailwind.config = {
             theme: {
@@ -38,589 +33,168 @@
                             700: '#1d4ed8',
                             800: '#1e40af',
                             900: '#1e3a8a',
-                        },
-                        gray: {
-                            50: '#f9fafb',
-                            100: '#f3f4f6',
-                            200: '#e5e7eb',
-                            300: '#d1d5db',
-                            400: '#9ca3af',
-                            500: '#6b7280',
-                            600: '#4b5563',
-                            700: '#374151',
-                            800: '#1f2937',
-                            900: '#111827',
                         }
-                    },
-                    fontFamily: {
-                        'sans': ['Inter', 'system-ui', 'sans-serif'],
                     }
                 }
             }
         }
     </script>
-    
-    <style>
-        /* Full screen layout optimization */
-        html, body {
-            height: 100vh;
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-        }
-        
-        body {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .main-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            min-height: 0;
-        }
-        
-        .content-wrapper {
-            flex: 1;
-            overflow-y: auto;
-            padding: 0;
-        }
-        
-        /* Mobile-first responsive design */
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        
-        .card-hover {
-            transition: all 0.3s ease;
-        }
-        
-        .card-hover:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-        
-        .metric-card {
-            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            min-height: 80px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        
-        .status-online {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        }
-        
-        .status-warning {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-        }
-        
-        .status-offline {
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-        }
-        
-        .leaflet-container {
-            border-radius: 12px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            height: 100% !important;
-            min-height: 400px;
-        }
-        
-        /* Enhanced map container for full screen usage */
-        .map-container {
-            height: calc(100vh - 400px);
-            min-height: 400px;
-        }
-        
-        @media (max-width: 768px) {
-            .map-container {
-                height: 300px;
-            }
-        }
-        
-        /* Toast notifications */
-        .toast-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
-            max-width: 90vw;
-        }
-        
-        .toast {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            padding: 16px;
-            margin-bottom: 12px;
-            border-left: 4px solid #3b82f6;
-            animation: slideIn 0.3s ease;
-            max-width: 350px;
-        }
-        
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        
-        .chart-container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            padding: 24px;
-        }
-        
-        /* Accessibility enhancements */
-        .focus-visible:focus {
-            outline: 2px solid #3b82f6;
-            outline-offset: 2px;
-        }
-        
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
-        }
-        
-        /* Touch-friendly interactions */
-        @media (hover: none) and (pointer: coarse) {
-            .card-hover:hover {
-                transform: none;
-            }
-            
-            button, .clickable {
-                min-height: 44px;
-                min-width: 44px;
-            }
-        }
-        
-        /* Pagination styles */
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 0.5rem;
-            margin-top: 1rem;
-            flex-wrap: wrap;
-        }
-        
-        .pagination button {
-            min-height: 44px;
-            min-width: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        /* Loading states */
-        .loading {
-            opacity: 0.6;
-            pointer-events: none;
-        }
-        
-        .spinner {
-            border: 2px solid #f3f3f3;
-            border-top: 2px solid #3b82f6;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        /* High contrast mode support */
-        @media (prefers-contrast: high) {
-            .gradient-bg {
-                background: #1e40af;
-            }
-            
-            .metric-card {
-                border: 2px solid white;
-            }
-        }
-        
-        /* Reduced motion support */
-        @media (prefers-reduced-motion: reduce) {
-            .card-hover {
-                transition: none;
-            }
-            
-            .toast {
-                animation: none;
-            }
-            
-            .spinner {
-                animation: none;
-            }
-        }
-    </style>
 </head>
-<body class="bg-gray-50 font-sans">
-    <!-- Skip to main content for accessibility -->
-    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-primary-600 text-white px-4 py-2 rounded-md z-50">
-        Skip to main content
-    </a>
-    
-    <!-- Toast Container -->
-    <div id="toastContainer" class="toast-container" role="alert" aria-live="polite"></div>
-    
-    <div class="main-container">
-        <!-- Navigation -->
-        <nav class="bg-white shadow-sm border-b border-gray-200" role="navigation" aria-label="Main navigation">
-            <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
+<body class="bg-gray-50 font-sans antialiased">
+    <!-- Site Tracker Application -->
+    <div class="min-h-screen bg-gray-50">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between items-center h-16">
                     <div class="flex items-center">
-                        <div class="flex-shrink-0 flex items-center">
-                            <i class="fas fa-map-marked-alt text-2xl text-primary-600 mr-3" aria-hidden="true"></i>
-                            <h1 class="text-xl font-bold text-gray-900">Site Tracker</h1>
-                            <span class="ml-3 text-sm text-gray-500">Dashboard</span>
-                        </div>
+                        <h1 class="text-xl font-semibold text-gray-900">Site Tracker</h1>
                     </div>
-                    
-                    <div class="flex items-center space-x-2 sm:space-x-4">
-                        <button onclick="toggleAIChat()" 
-                                class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors focus-visible:focus"
-                                aria-label="Open AI Assistant">
-                            <i class="fas fa-robot mr-2" aria-hidden="true"></i>
-                            <span class="hidden sm:inline">AI Assistant</span>
+                    <div class="flex items-center space-x-4">
+                        <button onclick="toggleAIChat()" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2">
+                            <i class="fas fa-robot"></i>
+                            <span>AI Assistant</span>
                         </button>
-                        <button onclick="refreshData()" 
-                                class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-primary-700 bg-primary-100 hover:bg-primary-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors focus-visible:focus"
-                                aria-label="Refresh data">
-                            <i class="fas fa-sync-alt mr-2" aria-hidden="true"></i>
-                            <span class="hidden sm:inline">Refresh</span>
+                        <button onclick="toggleLocationDetails()" id="locationToggle" class="text-primary-600 hover:text-primary-900 p-2 rounded hover:bg-primary-50 transition-colors">
+                            <i class="fas fa-map-marker-alt"></i>
                         </button>
-                        <a href="config.html" 
-                           class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors focus-visible:focus"
-                           aria-label="Go to configuration page">
-                            <i class="fas fa-cog mr-2" aria-hidden="true"></i>
-                            <span class="hidden sm:inline">Config</span>
-                        </a>
-                        <a href="dashboard.html" 
-                           class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors focus-visible:focus"
-                           aria-label="Go to analytics dashboard">
-                            <i class="fas fa-chart-line mr-2" aria-hidden="true"></i>
-                            <span class="hidden sm:inline">Analytics</span>
-                        </a>
                     </div>
                 </div>
             </div>
-        </nav>
+        </header>
 
         <!-- Main Content -->
-        <div class="content-wrapper">
-            <main id="main-content" class="max-w-full mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
-                <!-- Header Stats -->
-                <section class="gradient-bg rounded-2xl p-4 sm:p-8 mb-4 sm:mb-8 text-white" aria-labelledby="stats-heading">
-                    <h2 id="stats-heading" class="sr-only">Site Statistics</h2>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-6">
-                        <div class="metric-card rounded-xl p-3 sm:p-4 text-center" role="img" aria-labelledby="total-sites-label">
-                            <div class="text-xl sm:text-2xl font-bold" id="totalSites" aria-describedby="total-sites-label">0</div>
-                            <div id="total-sites-label" class="text-xs sm:text-sm opacity-80">Total Sites</div>
-                        </div>
-                        <div class="metric-card rounded-xl p-3 sm:p-4 text-center" role="img" aria-labelledby="active-sites-label">
-                            <div class="text-xl sm:text-2xl font-bold" id="activeSites" aria-describedby="active-sites-label">0</div>
-                            <div id="active-sites-label" class="text-xs sm:text-sm opacity-80">Active Sites</div>
-                        </div>
-                        <div class="metric-card rounded-xl p-3 sm:p-4 text-center" role="img" aria-labelledby="mapped-label">
-                            <div class="text-xl sm:text-2xl font-bold" id="mappedLocations" aria-describedby="mapped-label">0</div>
-                            <div id="mapped-label" class="text-xs sm:text-sm opacity-80">Mapped</div>
-                        </div>
-                        <div class="metric-card rounded-xl p-3 sm:p-4 text-center" role="img" aria-labelledby="filtered-label">
-                            <div class="text-xl sm:text-2xl font-bold" id="filteredResults" aria-describedby="filtered-label">0</div>
-                            <div id="filtered-label" class="text-xs sm:text-sm opacity-80">Filtered</div>
-                        </div>
-                        <div class="metric-card rounded-xl p-3 sm:p-4 text-center" role="img" aria-labelledby="online-label">
-                            <div class="text-xl sm:text-2xl font-bold text-green-300" id="onlineCount" aria-describedby="online-label">0</div>
-                            <div id="online-label" class="text-xs sm:text-sm opacity-80">Online</div>
-                        </div>
-                        <div class="metric-card rounded-xl p-3 sm:p-4 text-center" role="img" aria-labelledby="updated-label">
-                            <div id="updated-label" class="text-xs sm:text-sm opacity-80">Last Updated</div>
-                            <div class="text-xs sm:text-sm font-medium" id="lastUpdated" aria-describedby="updated-label">Never</div>
-                        </div>
+        <main class="flex-1">
+            <!-- Map Container -->
+            <div class="relative">
+                <div id="map" class="w-full h-96 lg:h-[500px]"></div>
+            </div>
+
+            <!-- Content Sections -->
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <!-- Stats Cards -->
+                <div id="locationDetails" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+                    <div class="bg-white rounded-lg shadow p-4">
+                        <div class="text-sm font-medium text-gray-500">Total Sites</div>
+                        <div id="totalSites" class="text-2xl font-bold text-gray-900">0</div>
                     </div>
-                </section>
-
-                <!-- Main Dashboard Grid -->
-                <div class="grid grid-cols-1 xl:grid-cols-4 gap-4 sm:gap-8">
-                    <!-- Map Section -->
-                    <div class="xl:col-span-3">
-                        <section class="bg-white rounded-xl shadow-sm p-4 sm:p-6" aria-labelledby="map-heading">
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-4">
-                                <h2 id="map-heading" class="text-lg font-semibold text-gray-900">Site Locations</h2>
-                                <div class="flex items-center space-x-2 flex-wrap">
-                                    <button onclick="toggleLocationDetails()" 
-                                            class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 transition-colors focus-visible:focus"
-                                            aria-label="Toggle location details"
-                                            id="locationToggle">
-                                        <i class="fas fa-map-marker-alt mr-1" aria-hidden="true"></i>
-                                        Show Locations
-                                    </button>
-                                    <button onclick="toggleHeatmap()" 
-                                            class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md text-primary-700 bg-primary-100 hover:bg-primary-200 transition-colors focus-visible:focus"
-                                            aria-label="Toggle heatmap view"
-                                            id="heatmapToggle">
-                                        <i class="fas fa-fire mr-1" aria-hidden="true"></i>
-                                        Heatmap
-                                    </button>
-                                    <button onclick="toggleClustering()" 
-                                            class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors focus-visible:focus"
-                                            aria-label="Toggle marker clustering"
-                                            id="clusterToggle">
-                                        <i class="fas fa-layer-group mr-1" aria-hidden="true"></i>
-                                        Cluster
-                                    </button>
-                                    <button onclick="fitMapToMarkers()" 
-                                            class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors focus-visible:focus"
-                                            aria-label="Fit map to show all markers">
-                                        <i class="fas fa-expand-arrows-alt mr-1" aria-hidden="true"></i>
-                                        Fit All
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="map-container">
-                                <div id="map" class="h-full w-full rounded-lg" role="img" aria-label="Interactive map showing site locations"></div>
-                            </div>
-                            
-                            <!-- Location Details Panel -->
-                            <div id="locationDetails" class="location-details-panel" style="display: none;">
-                                <div class="bg-gray-50 rounded-lg p-4 mt-4">
-                                    <h4 class="text-md font-semibold text-gray-900 mb-3">
-                                        <i class="fas fa-map-marker-alt text-blue-600 mr-2"></i>
-                                        Site Locations Overview
-                                    </h4>
-                                    <div id="locationList" class="space-y-2 max-h-64 overflow-y-auto">
-                                        <p class="text-gray-500 text-sm">Loading location data...</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
+                    <div class="bg-white rounded-lg shadow p-4">
+                        <div class="text-sm font-medium text-gray-500">Active Sites</div>
+                        <div id="activeSites" class="text-2xl font-bold text-green-600">0</div>
                     </div>
+                    <div class="bg-white rounded-lg shadow p-4">
+                        <div class="text-sm font-medium text-gray-500">Mapped Locations</div>
+                        <div id="mappedLocations" class="text-2xl font-bold text-blue-600">0</div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-4">
+                        <div class="text-sm font-medium text-gray-500">Online</div>
+                        <div id="statusOnline" class="text-2xl font-bold text-green-600">0</div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-4">
+                        <div class="text-sm font-medium text-gray-500">Offline</div>
+                        <div id="statusOffline" class="text-2xl font-bold text-red-600">0</div>
+                    </div>
+                </div>
 
-                    <!-- Sidebar -->
-                    <div class="space-y-4 sm:space-y-6">
-                        <!-- Filters -->
-                        <section class="bg-white rounded-xl shadow-sm p-4 sm:p-6" aria-labelledby="filters-heading">
-                            <h3 id="filters-heading" class="text-lg font-semibold text-gray-900 mb-4">Filters</h3>
-                            
-                            <div class="space-y-4">
-                                <div>
-                                    <label for="searchInput" class="block text-sm font-medium text-gray-700 mb-2">Search</label>
-                                    <div class="relative">
-                                        <input type="text" 
-                                               id="searchInput" 
-                                               placeholder="Search sites..." 
-                                               class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent focus-visible:focus"
-                                               aria-describedby="search-help">
-                                        <i class="fas fa-search absolute left-3 top-3 text-gray-400" aria-hidden="true"></i>
-                                    </div>
-                                    <div id="search-help" class="sr-only">Search through site names, locations, and descriptions</div>
-                                </div>
-                                
-                                <div>
-                                    <label for="statusFilter" class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                                    <select id="statusFilter" 
-                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent focus-visible:focus"
-                                            aria-describedby="status-help">
-                                        <option value="">All Statuses</option>
-                                        <option value="online">Online</option>
-                                        <option value="offline">Offline</option>
-                                        <option value="warning">Warning</option>
-                                    </select>
-                                    <div id="status-help" class="sr-only">Filter sites by their current operational status</div>
-                                </div>
-                                
-                                <div>
-                                    <label for="categoryFilter" class="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                                    <select id="categoryFilter" 
-                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent focus-visible:focus"
-                                            aria-describedby="category-help">
-                                        <option value="">All Categories</option>
-                                    </select>
-                                    <div id="category-help" class="sr-only">Filter sites by their category or type</div>
-                                </div>
-                                
-                                <div class="flex flex-col sm:flex-row gap-2">
-                                    <button onclick="applyFilters()" 
-                                            class="flex-1 bg-primary-600 text-white py-2 px-4 rounded-lg hover:bg-primary-700 transition-colors focus-visible:focus"
-                                            aria-label="Apply selected filters">
-                                        Apply Filters
-                                    </button>
-                                    
-                                    <button onclick="clearFilters()" 
-                                            class="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors focus-visible:focus"
-                                            aria-label="Clear all filters">
-                                        Clear All
-                                    </button>
-                                </div>
-                            </div>
-                        </section>
-
-                <!-- Site Status Overview -->
-                <div class="bg-white rounded-xl shadow-sm p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Site Status</h3>
+                <!-- Data Table -->
+                <div class="bg-white rounded-lg shadow">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-lg font-medium text-gray-900">Site Data</h2>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <div id="tableLoading" class="hidden p-4 text-center">
+                            <i class="fas fa-spinner fa-spin text-gray-400"></i>
+                            <span class="ml-2 text-gray-600">Loading data...</span>
+                        </div>
+                        <table id="dataTable" class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('name')">
+                                        <div class="flex items-center">
+                                            Site
+                                            <i class="fas fa-sort ml-1 text-gray-400"></i>
+                                        </div>
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('location')">
+                                        <div class="flex items-center">
+                                            Location
+                                            <i class="fas fa-sort ml-1 text-gray-400"></i>
+                                        </div>
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('status')">
+                                        <div class="flex items-center">
+                                            Status
+                                            <i class="fas fa-sort ml-1 text-gray-400"></i>
+                                        </div>
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('category')">
+                                        <div class="flex items-center">
+                                            Category
+                                            <i class="fas fa-sort ml-1 text-gray-400"></i>
+                                        </div>
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('lastupdate')">
+                                        <div class="flex items-center">
+                                            Last Update
+                                            <i class="fas fa-sort ml-1 text-gray-400"></i>
+                                        </div>
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dataTableBody" class="bg-white divide-y divide-gray-200">
+                                <!-- Data will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
                     
-                    <div class="space-y-3">
-                        <div class="flex items-center justify-between p-3 status-online rounded-lg text-white">
-                            <div class="flex items-center">
-                                <i class="fas fa-circle text-xs mr-2"></i>
-                                <span class="font-medium">Online</span>
-                            </div>
-                            <span class="font-bold" id="statusOnline">0</span>
-                        </div>
-                        
-                        <div class="flex items-center justify-between p-3 status-warning rounded-lg text-white">
-                            <div class="flex items-center">
-                                <i class="fas fa-exclamation-triangle text-xs mr-2"></i>
-                                <span class="font-medium">Warning</span>
-                            </div>
-                            <span class="font-bold" id="statusWarning">0</span>
-                        </div>
-                        
-                        <div class="flex items-center justify-between p-3 status-offline rounded-lg text-white">
-                            <div class="flex items-center">
-                                <i class="fas fa-times-circle text-xs mr-2"></i>
-                                <span class="font-medium">Offline</span>
-                            </div>
-                            <span class="font-bold" id="statusOffline">0</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Recent Activity -->
-                <div class="bg-white rounded-xl shadow-sm p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
-                    <div id="recentActivity" class="space-y-3">
-                        <div class="text-sm text-gray-500 text-center py-4">No recent activity</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Data Table -->
-        <div class="mt-8 bg-white rounded-xl shadow-sm overflow-hidden">
-            <div class="px-4 sm:px-6 py-4 border-b border-gray-200">
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
-                    <h3 class="text-lg font-semibold text-gray-900">Site Details</h3>
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
-                        <!-- Rows per page selector -->
-                        <div class="flex items-center space-x-2">
-                            <label for="rowsPerPage" class="text-sm text-gray-500">Rows per page:</label>
-                            <select id="rowsPerPage" onchange="changeRowsPerPage()" class="text-sm border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-primary-500 focus:border-transparent">
-                                <option value="10">10</option>
-                                <option value="25" selected>25</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
-                            </select>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <button onclick="exportData()" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors">
-                                <i class="fas fa-download mr-1"></i>
-                                <span class="hidden sm:inline">Export</span>
+                    <!-- Pagination Controls -->
+                    <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                        <div class="flex-1 flex justify-between sm:hidden">
+                            <button id="prevPageBtnMobile" onclick="previousPage()" disabled class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                Previous
                             </button>
-                            <span class="text-sm text-gray-500">
-                                <span class="hidden sm:inline">Showing </span><span id="showingStart">0</span>-<span id="showingEnd">0</span> of <span id="totalCount">0</span>
-                            </span>
+                            <button id="nextPageBtnMobile" onclick="nextPage()" disabled class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                Next
+                            </button>
+                        </div>
+                        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                            <div>
+                                <p class="text-sm text-gray-700">
+                                    Showing
+                                    <span id="paginationStart" class="font-medium">0</span>
+                                    to
+                                    <span id="paginationEnd" class="font-medium">0</span>
+                                    of
+                                    <span id="paginationTotal" class="font-medium">0</span>
+                                    results
+                                </p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <label for="rowsPerPage" class="text-sm text-gray-700">Rows per page:</label>
+                                <select id="rowsPerPage" onchange="changeRowsPerPage()" class="border border-gray-300 rounded px-2 py-1 text-sm">
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px ml-4" aria-label="Pagination">
+                                    <button id="prevPageBtn" onclick="previousPage()" disabled class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </button>
+                                    <div id="pageNumbers" class="flex">
+                                        <!-- Page numbers will be populated here -->
+                                    </div>
+                                    <button id="nextPageBtn" onclick="nextPage()" disabled class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </nav>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            
-            <!-- Loading indicator -->
-            <div id="tableLoading" class="hidden p-8 text-center">
-                <div class="loading">
-                    <div class="spinner"></div>
-                    <p class="mt-2 text-gray-500">Loading data...</p>
-                </div>
-            </div>
-            
-            <!-- Mobile card view for small screens -->
-            <div id="mobileTableView" class="block sm:hidden">
-                <div id="mobileTableBody" class="divide-y divide-gray-200">
-                    <!-- Mobile cards will be populated here -->
-                </div>
-            </div>
-            
-            <!-- Desktop table view -->
-            <div id="desktopTableView" class="hidden sm:block overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('name')">
-                                <div class="flex items-center">
-                                    Site
-                                    <i class="fas fa-sort ml-1 text-gray-400"></i>
-                                </div>
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('location')">
-                                <div class="flex items-center">
-                                    Location
-                                    <i class="fas fa-sort ml-1 text-gray-400"></i>
-                                </div>
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('status')">
-                                <div class="flex items-center">
-                                    Status
-                                    <i class="fas fa-sort ml-1 text-gray-400"></i>
-                                </div>
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('category')">
-                                <div class="flex items-center">
-                                    Category
-                                    <i class="fas fa-sort ml-1 text-gray-400"></i>
-                                </div>
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('lastupdate')">
-                                <div class="flex items-center">
-                                    Last Update
-                                    <i class="fas fa-sort ml-1 text-gray-400"></i>
-                                </div>
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="dataTableBody" class="bg-white divide-y divide-gray-200">
-                        <!-- Data will be populated here -->
-                    </tbody>
-                </table>
-            </div>
-            
-            <!-- Pagination Controls -->
-            <div class="px-4 sm:px-6 py-4 border-t border-gray-200 bg-gray-50">
-                <div class="flex flex-col sm:flex-row items-center justify-between space-y-3 sm:space-y-0">
-                    <div class="text-sm text-gray-700">
-                        Showing <span id="paginationStart">0</span> to <span id="paginationEnd">0</span> of <span id="paginationTotal">0</span> results
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <button id="prevPageBtn" onclick="previousPage()" disabled class="pagination-btn">
-                            <i class="fas fa-chevron-left"></i>
-                            <span class="hidden sm:inline ml-1">Previous</span>
-                        </button>
-                        <div id="pageNumbers" class="flex items-center space-x-1">
-                            <!-- Page numbers will be populated here -->
-                        </div>
-                        <button id="nextPageBtn" onclick="nextPage()" disabled class="pagination-btn">
-                            <span class="hidden sm:inline mr-1">Next</span>
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        </main>
     </div>
 
     <!-- AI Assistant Panel -->
@@ -698,7 +272,7 @@
 
     <!-- AI Chat Modal -->
     <div id="aiChatModal" class="fixed top-20 right-6 z-[9999] hidden">
-        <div id="aiChatWindow" class="bg-white rounded-lg shadow-2xl w-80 h-96 flex flex-col border border-gray-200" style="box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
+        <div id="aiChatWindow" class="bg-white rounded-lg shadow-2xl flex flex-col border border-gray-200 resizable-chat" style="box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); width: 320px; height: 400px; min-width: 280px; min-height: 300px; max-width: 600px; max-height: 80vh;">
             <!-- Header -->
             <div id="aiChatHeader" class="flex items-center justify-between p-4 border-b bg-purple-600 text-white rounded-t-lg cursor-move select-none">
                 <div class="flex items-center space-x-2">
@@ -740,6 +314,16 @@
                     <span>Powered by OpenRouter</span>
                 </div>
             </div>
+            
+            <!-- Resize Handles -->
+            <div class="resize-handle resize-handle-se" title="Drag to resize"></div>
+            <div class="resize-handle resize-handle-s" title="Drag to resize height"></div>
+            <div class="resize-handle resize-handle-e" title="Drag to resize width"></div>
+            <div class="resize-handle resize-handle-sw" title="Drag to resize"></div>
+            <div class="resize-handle resize-handle-w" title="Drag to resize width"></div>
+            <div class="resize-handle resize-handle-nw" title="Drag to resize"></div>
+            <div class="resize-handle resize-handle-n" title="Drag to resize height"></div>
+            <div class="resize-handle resize-handle-ne" title="Drag to resize"></div>
         </div>
     </div>
 
@@ -774,13 +358,22 @@
             
             console.log('DOM loaded, checking for auto-config...');
             
+            // Add debug info to page
+            setTimeout(() => {
+                const debugInfo = document.createElement('div');
+                debugInfo.id = 'debugInfo';
+                debugInfo.style.cssText = 'position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.8); color: white; padding: 10px; border-radius: 5px; font-family: monospace; font-size: 12px; z-index: 10000; max-width: 400px;';
+                debugInfo.innerHTML = '<strong>Debug Info:</strong><br>Check console for detailed logs...';
+                document.body.appendChild(debugInfo);
+            }, 500);
+            
             // Force load data with hardcoded values for testing
             setTimeout(() => {
                 console.log('Force loading data for testing...');
                 // Set the API key and sheet ID directly for testing
                 localStorage.setItem('apiKey', 'AIzaSyAcStfXXwdeh2d_MyFOorLzOcvplHAWjZY');
                 localStorage.setItem('sheetId', '1aNEX-jyWYXXPL-RjJ-18-XC3iad3GvxFHyrMajgjHUA');
-                localStorage.setItem('sheetRange', 'Sheet1!A1:S100');
+                localStorage.setItem('sheetRange', 'Sheet1!A:X');
                 
                 processSheetData();
             }, 1000);
@@ -845,26 +438,49 @@
                     range = localStorage.getItem('sheetRange') || 'Sheet1!A:Z';
                 }
 
+                console.log('API Configuration:', { apiKey: apiKey ? 'Set' : 'Not set', sheetId, range });
+
                 const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
+                console.log('Fetching from URL:', url);
+                
                 const response = await fetch(url);
+                console.log('Response status:', response.status);
                 
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    const errorText = await response.text();
+                    console.error('API Error Response:', errorText);
+                    throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
                 }
                 
                 const data = await response.json();
+                console.log('Raw API Response:', data);
                 
                 if (!data.values || data.values.length === 0) {
+                    console.error('No data found in sheet response');
                     throw new Error('No data found in the sheet');
                 }
 
+                console.log('Total rows received:', data.values.length);
                 allData = parseSheetData(data.values);
+                console.log('Parsed data count:', allData.length);
                 filteredData = [...allData];
                 
                 updateMap();
                 updateStats();
                 updateTable();
                 updateFilters();
+                
+                // Initialize AI Report Generator with loaded data
+                if (window.aiReportGenerator && allData.length > 0) {
+                    window.aiReportGenerator.updateData(allData);
+                    console.log('✅ AI Report Generator initialized with', allData.length, 'records');
+                }
+                
+                // Update AI Assistant with loaded data
+                if (window.aiAssistant && allData.length > 0) {
+                    window.aiAssistant.updateData(allData);
+                    console.log('✅ AI Assistant updated with', allData.length, 'records');
+                }
                 
                 showToast('Data loaded successfully', 'success');
                 
@@ -890,20 +506,38 @@
                     item[header] = row[index] || '';
                 });
                 
-                // Use columns S (index 17) and T (index 18) for coordinates
-                // S = Latitude (18th column, 0-indexed = 17), T = Longitude (19th column, 0-indexed = 18)
-                const latFromColumnS = row[17]; // Column S (18th column, 0-indexed = 17)
-                const lngFromColumnT = row[18]; // Column T (19th column, 0-indexed = 18)
+                // Set basic item properties for ALL records
+                item.name = item.name || item['location name'] || item['ap site name'] || item.sitename || `Site ${i}`;
                 
-                console.log(`Row ${i}: lat=${latFromColumnS}, lng=${lngFromColumnT}`);
+                // Get status from column X (index 23)
+                const statusFromColumnX = row[23]; // Column X (24th column, 0-indexed = 23) - STATUS
+                console.log(`Row ${i} status from column X: ${statusFromColumnX}`);
+                
+                // Map status values: UP = online, DOWN = offline
+                if (statusFromColumnX && statusFromColumnX.toUpperCase() === 'UP') {
+                    item.status = 'online';
+                } else if (statusFromColumnX && statusFromColumnX.toUpperCase() === 'DOWN') {
+                    item.status = 'offline';
+                } else {
+                    item.status = 'unknown'; // For any other values or empty
+                }
+                
+                item.category = item.category || item.project || 'site';
+                
+                // Try to parse coordinates for mapping (but don't exclude records without them)
+                // Use columns R (index 17) and S (index 18) for coordinates
+                const latFromColumnR = row[17]; // Column R (18th column, 0-indexed = 17) - LATITUDE
+                const lngFromColumnS = row[18]; // Column S (19th column, 0-indexed = 18) - LONGITUDE
+                
+                console.log(`Row ${i}: lat=${latFromColumnR}, lng=${lngFromColumnS}`);
                 
                 // Also check for traditional latitude/longitude columns as fallback
                 const latFromHeader = item.latitude || item.lat;
                 const lngFromHeader = item.longitude || item.lng || item.long;
                 
-                // Use column S/T first, then fallback to header-based columns
-                const latitude = latFromColumnS || latFromHeader;
-                const longitude = lngFromColumnT || lngFromHeader;
+                // Use column R/S first, then fallback to header-based columns
+                const latitude = latFromColumnR || latFromHeader;
+                const longitude = lngFromColumnS || lngFromHeader;
                 
                 if (latitude && longitude) {
                     const lat = parseFloat(latitude);
@@ -914,27 +548,33 @@
                     if (!isNaN(lat) && !isNaN(lng)) {
                         item.latitude = lat;
                         item.longitude = lng;
-                        item.name = item.name || item['location name'] || item['ap site name'] || item.sitename || `Site ${i}`;
-                        item.status = item.status || 'online'; // Default to online for sites with coordinates
-                        item.category = item.category || item.project || 'site';
-                        
-                        console.log(`Adding site: ${item.name} at ${lat}, ${lng}`);
-                        data.push(item);
+                        console.log(`Row ${i}: Added coordinates lat=${lat}, lng=${lng}`);
+                    } else {
+                        console.log(`Row ${i}: Invalid coordinates lat=${latitude}, lng=${longitude}`);
                     }
                 } else {
-                    console.log(`Row ${i}: No valid coordinates found`);
+                    console.log(`Row ${i}: No coordinates found`);
                 }
+                
+                // Add ALL records to the data array (whether they have coordinates or not)
+                console.log(`Adding record ${i}: ${item.name} with status: ${item.status}`);
+                data.push(item);
             }
             
-            console.log(`Parsed ${data.length} sites with coordinates from Google Sheets`);
+            console.log(`Parsed ${data.length} total records from Google Sheets`);
+            const recordsWithCoords = data.filter(item => item.latitude && item.longitude).length;
+            console.log(`${recordsWithCoords} records have coordinates for mapping`);
+            
             if (data.length > 0) {
-                console.log('Sample site data:', data[0]);
+                console.log('Sample record data:', data[0]);
             }
             return data;
         }
 
         // Update map with markers
         function updateMap() {
+            console.log('updateMap called with filteredData length:', filteredData.length);
+            
             // Clear existing markers
             markerClusterGroup.clearLayers();
             markers = [];
@@ -944,17 +584,23 @@
             }
 
             // Create markers for filtered data
-            filteredData.forEach(item => {
+            filteredData.forEach((item, index) => {
+                console.log(`Processing item ${index}:`, item);
                 const marker = createMarker(item);
                 if (marker) {
+                    console.log(`Created marker for ${item.name} at ${item.latitude}, ${item.longitude}`);
                     markers.push(marker);
                     if (isClusteringEnabled) {
                         markerClusterGroup.addLayer(marker);
                     } else {
                         marker.addTo(map);
                     }
+                } else {
+                    console.log(`Failed to create marker for item ${index}:`, item);
                 }
             });
+
+            console.log(`Total markers created: ${markers.length}`);
 
             // Create heatmap if enabled
             if (isHeatmapVisible) {
@@ -966,6 +612,9 @@
             if (markers.length > 0) {
                 const group = new L.featureGroup(markers);
                 map.fitBounds(group.getBounds().pad(0.1));
+                console.log('Map bounds fitted to markers');
+            } else {
+                console.log('No markers to fit bounds to');
             }
         }
 
@@ -1031,11 +680,15 @@
             const filtered = filteredData.length;
             const mapped = filteredData.filter(item => item.latitude && item.longitude).length;
             
+            // Count status based on column X values (UP/DOWN)
             const statusCounts = {
                 online: filteredData.filter(item => item.status === 'online').length,
                 warning: filteredData.filter(item => item.status === 'warning').length,
-                offline: filteredData.filter(item => item.status === 'offline').length
+                offline: filteredData.filter(item => item.status === 'offline').length,
+                unknown: filteredData.filter(item => item.status === 'unknown').length
             };
+
+            console.log('Status counts:', statusCounts);
 
             // Update header metrics
             document.getElementById('totalSites').textContent = total;
@@ -1045,7 +698,7 @@
             document.getElementById('onlineCount').textContent = statusCounts.online;
             document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString();
 
-            // Update status overview
+            // Update status overview - show online and offline counts
             document.getElementById('statusOnline').textContent = statusCounts.online;
             document.getElementById('statusWarning').textContent = statusCounts.warning;
             document.getElementById('statusOffline').textContent = statusCounts.offline;
@@ -1080,10 +733,11 @@
                 row.innerHTML = `
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="text-sm font-medium text-gray-900">${item.name || 'Unknown'}</div>
-                        ${item.description ? `<div class="text-sm text-gray-500 truncate max-w-xs">${item.description}</div>` : ''}
+                        ${item['ap site code'] ? `<div class="text-sm text-gray-500">${item['ap site code']}</div>` : ''}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        ${item.location || 'Not specified'}
+                        <div>${item['location name'] || item.locality || 'Not specified'}</div>
+                        ${item.province ? `<div class="text-xs text-gray-500">${item.province}</div>` : ''}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusClass(item.status)}">
@@ -1092,10 +746,10 @@
                         </span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        ${item.category || 'Uncategorized'}
+                        ${item.project || item['site type'] || 'Uncategorized'}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        ${formatDate(item.lastupdate) || 'Never'}
+                        ${item['date of activation'] || 'Not specified'}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div class="flex items-center space-x-2">
@@ -1542,19 +1196,31 @@
 
         // Setup event listeners
         function setupEventListeners() {
-            // Search input
-            document.getElementById('searchInput').addEventListener('input', debounce(applyFilters, 300));
+            // Only add listeners for elements that exist
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', debounce(applyFilters, 300));
+            }
             
-            // Filter selects
-            document.getElementById('statusFilter').addEventListener('change', applyFilters);
-            document.getElementById('categoryFilter').addEventListener('change', applyFilters);
+            const statusFilter = document.getElementById('statusFilter');
+            if (statusFilter) {
+                statusFilter.addEventListener('change', applyFilters);
+            }
+            
+            const categoryFilter = document.getElementById('categoryFilter');
+            if (categoryFilter) {
+                categoryFilter.addEventListener('change', applyFilters);
+            }
             
             // AI Assistant input
-            document.getElementById('aiInput').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    sendAIMessage();
-                }
-            });
+            const aiInput = document.getElementById('aiInput');
+            if (aiInput) {
+                aiInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        sendAIMessage();
+                    }
+                });
+            }
         }
 
         // Debounce function
@@ -1877,7 +1543,15 @@ Recent Issues: ${recentIssues.length > 0 ?
 
         // Toast notification system
         function showToast(message, type = 'info') {
-            const container = document.getElementById('toastContainer');
+            // Create toast container if it doesn't exist
+            let container = document.getElementById('toastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toastContainer';
+                container.className = 'fixed top-4 right-4 z-50 space-y-2';
+                document.body.appendChild(container);
+            }
+            
             const toast = document.createElement('div');
             
             const colors = {
@@ -1920,7 +1594,7 @@ Recent Issues: ${recentIssues.length > 0 ?
 
         // AI Chat Functions
         let aiChatConfig = {
-            apiKey: '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', // Your OpenRouter API key
+            apiKey: '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', // Your OpenRouter API key
             baseURL: 'https://openrouter.ai/api/v1',
             model: 'anthropic/claude-3.5-sonnet',
             tokenCount: 0
@@ -2075,58 +1749,231 @@ Recent Issues: ${recentIssues.length > 0 ?
 
             } catch (error) {
                 console.error('AI Chat Error:', error);
-                addChatMessage('Sorry, I encountered an error. Please check your API key and try again.', 'ai', true);
-                showToast('AI Chat Error: ' + error.message, 'error');
+                addChatMessage('Sorry, I encountered an error. Please try again.', 'ai');
             } finally {
                 // Re-enable send button
                 sendBtn.disabled = false;
                 sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
-                input.focus();
             }
         }
 
-        function addChatMessage(message, sender, isError = false) {
+        // Add message to chat
+        function addChatMessage(message, sender) {
             const messagesContainer = document.getElementById('aiChatMessages');
             const messageDiv = document.createElement('div');
-            
+            messageDiv.className = 'flex items-start space-x-3';
+
             if (sender === 'user') {
-                messageDiv.className = 'flex items-start space-x-3 justify-end';
                 messageDiv.innerHTML = `
-                    <div class="bg-purple-600 text-white rounded-lg p-3 max-w-xs">
-                        <p class="text-sm">${escapeHtml(message)}</p>
+                    <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-user text-white text-sm"></i>
                     </div>
-                    <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
-                        <i class="fas fa-user text-gray-600 text-sm"></i>
+                    <div class="bg-blue-100 rounded-lg p-3 max-w-xs">
+                        <p class="text-sm text-gray-800">${message}</p>
                     </div>
                 `;
             } else {
-                messageDiv.className = 'flex items-start space-x-3';
-                const bgColor = isError ? 'bg-red-100' : 'bg-gray-100';
-                const textColor = isError ? 'text-red-800' : 'text-gray-800';
                 messageDiv.innerHTML = `
                     <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
                         <i class="fas fa-robot text-white text-sm"></i>
                     </div>
-                    <div class="${bgColor} rounded-lg p-3 max-w-xs">
-                        <p class="text-sm ${textColor}">${escapeHtml(message)}</p>
+                    <div class="bg-gray-100 rounded-lg p-3 max-w-xs">
+                        <p class="text-sm text-gray-800">${message}</p>
                     </div>
                 `;
             }
-            
+
             messagesContainer.appendChild(messageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
-        // Initialize AI Chat on page load
+        // Initialize resize functionality for AI chat
+        function initializeChatResize() {
+            const chatWindow = document.getElementById('aiChatWindow');
+            const resizeHandles = chatWindow.querySelectorAll('.resize-handle');
+            
+            resizeHandles.forEach(handle => {
+                handle.addEventListener('mousedown', initResize);
+            });
+            
+            function initResize(e) {
+                e.preventDefault();
+                const handle = e.target;
+                const rect = chatWindow.getBoundingClientRect();
+                const startX = e.clientX;
+                const startY = e.clientY;
+                const startWidth = rect.width;
+                const startHeight = rect.height;
+                const startLeft = rect.left;
+                const startTop = rect.top;
+                
+                const handleClass = handle.className;
+                
+                function doResize(e) {
+                    const deltaX = e.clientX - startX;
+                    const deltaY = e.clientY - startY;
+                    
+                    let newWidth = startWidth;
+                    let newHeight = startHeight;
+                    let newLeft = startLeft;
+                    let newTop = startTop;
+                    
+                    // Handle different resize directions
+                    if (handleClass.includes('resize-handle-e') || handleClass.includes('resize-handle-se') || handleClass.includes('resize-handle-ne')) {
+                        newWidth = Math.max(280, Math.min(600, startWidth + deltaX));
+                    }
+                    if (handleClass.includes('resize-handle-w') || handleClass.includes('resize-handle-sw') || handleClass.includes('resize-handle-nw')) {
+                        newWidth = Math.max(280, Math.min(600, startWidth - deltaX));
+                        newLeft = startLeft + deltaX;
+                    }
+                    if (handleClass.includes('resize-handle-s') || handleClass.includes('resize-handle-se') || handleClass.includes('resize-handle-sw')) {
+                        newHeight = Math.max(300, Math.min(window.innerHeight * 0.8, startHeight + deltaY));
+                    }
+                    if (handleClass.includes('resize-handle-n') || handleClass.includes('resize-handle-ne') || handleClass.includes('resize-handle-nw')) {
+                        newHeight = Math.max(300, Math.min(window.innerHeight * 0.8, startHeight - deltaY));
+                        newTop = startTop + deltaY;
+                    }
+                    
+                    // Apply new dimensions
+                    chatWindow.style.width = newWidth + 'px';
+                    chatWindow.style.height = newHeight + 'px';
+                    
+                    // Update position if needed
+                    if (newLeft !== startLeft || newTop !== startTop) {
+                        const modal = document.getElementById('aiChatModal');
+                        modal.style.left = newLeft + 'px';
+                        modal.style.top = newTop + 'px';
+                        modal.style.right = 'auto';
+                    }
+                }
+                
+                function stopResize() {
+                    document.removeEventListener('mousemove', doResize);
+                    document.removeEventListener('mouseup', stopResize);
+                    document.body.style.cursor = '';
+                    document.body.style.userSelect = '';
+                }
+                
+                document.addEventListener('mousemove', doResize);
+                document.addEventListener('mouseup', stopResize);
+                document.body.style.cursor = handle.style.cursor || 'nw-resize';
+                document.body.style.userSelect = 'none';
+            }
+        }
+
+        // Initialize when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
-            updateConnectionStatus();
+            initializeChatResize();
         });
+
     </script>
 
-    <!-- Load additional scripts -->
-    <script src="config.js"></script>
-    <script src="auto-config.js"></script>
-    
-    <script src="toast-manager.js"></script>
+    <style>
+        /* Resize handle styles */
+        .resizable-chat {
+            position: relative;
+        }
+        
+        .resize-handle {
+            position: absolute;
+            background: transparent;
+            z-index: 10;
+        }
+        
+        .resize-handle:hover {
+            background: rgba(147, 51, 234, 0.2);
+        }
+        
+        /* Corner handles */
+        .resize-handle-se {
+            bottom: 0;
+            right: 0;
+            width: 12px;
+            height: 12px;
+            cursor: se-resize;
+        }
+        
+        .resize-handle-sw {
+            bottom: 0;
+            left: 0;
+            width: 12px;
+            height: 12px;
+            cursor: sw-resize;
+        }
+        
+        .resize-handle-ne {
+            top: 0;
+            right: 0;
+            width: 12px;
+            height: 12px;
+            cursor: ne-resize;
+        }
+        
+        .resize-handle-nw {
+            top: 0;
+            left: 0;
+            width: 12px;
+            height: 12px;
+            cursor: nw-resize;
+        }
+        
+        /* Edge handles */
+        .resize-handle-n {
+            top: 0;
+            left: 12px;
+            right: 12px;
+            height: 6px;
+            cursor: n-resize;
+        }
+        
+        .resize-handle-s {
+            bottom: 0;
+            left: 12px;
+            right: 12px;
+            height: 6px;
+            cursor: s-resize;
+        }
+        
+        .resize-handle-e {
+            right: 0;
+            top: 12px;
+            bottom: 12px;
+            width: 6px;
+            cursor: e-resize;
+        }
+        
+        .resize-handle-w {
+            left: 0;
+            top: 12px;
+            bottom: 12px;
+            width: 6px;
+            cursor: w-resize;
+        }
+        
+        /* Visual indicator for resize handles */
+        .resize-handle-se::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 8px;
+            height: 8px;
+            background: linear-gradient(-45deg, transparent 30%, #9333ea 30%, #9333ea 70%, transparent 70%);
+            opacity: 0.6;
+        }
+        
+        .resize-handle:hover::after {
+            opacity: 1;
+        }
+        
+        /* Prevent text selection during resize */
+        .resizing {
+            user-select: none;
+        }
+    </style>
+
+    <!-- AI Report Generator -->
+    <script src="ai-report-generator.js"></script>
+
 </body>
 </html>

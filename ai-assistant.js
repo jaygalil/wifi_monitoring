@@ -583,8 +583,12 @@ class AIAssistant {
     async processMessage(message) {
         const lowerMessage = message.toLowerCase();
 
-        // Analyze the message and provide appropriate response
-        if (lowerMessage.includes('analyze') || lowerMessage.includes('analysis')) {
+        // Check for report generation requests
+        if (lowerMessage.includes('report') || lowerMessage.includes('generate report')) {
+            return await this.handleReportRequest(message);
+        } else if (lowerMessage.includes('pdf') || lowerMessage.includes('export pdf')) {
+            return await this.handlePDFRequest(message);
+        } else if (lowerMessage.includes('analyze') || lowerMessage.includes('analysis')) {
             return await this.performDataAnalysis(message);
         } else if (lowerMessage.includes('insight') || lowerMessage.includes('pattern')) {
             return await this.generateInsights();
@@ -680,11 +684,136 @@ class AIAssistant {
         return `I understand you're asking about: "${message}"\n\n` +
                `I can help you with:\n` +
                `• 📊 Data analysis and insights\n` +
+               `• 📋 Generate comprehensive reports\n` +
+               `• 📄 Export reports as PDF documents\n` +
                `• 🔍 Finding issues or anomalies\n` +
                `• 📍 Site location analysis\n` +
                `• 📈 Performance metrics\n` +
                `• 📋 Data summaries\n\n` +
-               `Try asking something more specific, like "analyze site performance" or "show me connectivity issues".`;
+               `Try asking something like:\n` +
+               `• "Generate a site status report"\n` +
+               `• "Create a connectivity analysis report"\n` +
+               `• "Export performance report as PDF"\n` +
+               `• "Analyze site performance"`;
+    }
+
+    // Handle report generation requests
+    async handleReportRequest(message) {
+        if (!window.aiReportGenerator) {
+            return "❌ Report generator is not available. Please ensure the report generator module is loaded.";
+        }
+
+        try {
+            // Update report generator with current data
+            window.aiReportGenerator.updateData(this.currentData);
+
+            // Determine report type from message
+            const reportType = this.determineReportType(message);
+            const customPrompt = this.extractCustomPrompt(message);
+
+            // Generate the report
+            const report = await window.aiReportGenerator.generateReport(reportType, customPrompt);
+
+            // Format response with report summary
+            let response = `📊 **Report Generated Successfully!**\n\n`;
+            response += `**Title:** ${report.title}\n`;
+            response += `**Type:** ${report.type}\n`;
+            response += `**Records Analyzed:** ${report.dataSnapshot.recordsAnalyzed}\n`;
+            response += `**Generated:** ${new Date(report.generatedAt).toLocaleString()}\n\n`;
+
+            // Add key insights
+            response += `**Key Insights:**\n`;
+            report.insights.slice(0, 3).forEach(insight => {
+                response += `${insight}\n`;
+            });
+
+            // Add recommendations if available
+            if (report.recommendations.length > 0) {
+                response += `\n**Top Recommendations:**\n`;
+                report.recommendations.slice(0, 2).forEach(rec => {
+                    response += `• **${rec.title}** (${rec.priority} priority)\n`;
+                });
+            }
+
+            response += `\n💡 **Want to export this report as PDF?** Just ask: "Export this report as PDF"`;
+
+            // Store the last generated report for PDF export
+            this.lastGeneratedReport = report;
+
+            return response;
+
+        } catch (error) {
+            console.error('Report generation error:', error);
+            return `❌ **Error generating report:** ${error.message}\n\nPlease ensure your data is loaded and try again.`;
+        }
+    }
+
+    // Handle PDF export requests
+    async handlePDFRequest(message) {
+        if (!window.aiReportGenerator) {
+            return "❌ PDF export is not available. Please ensure the report generator module is loaded.";
+        }
+
+        try {
+            let report = this.lastGeneratedReport;
+
+            // If no recent report, generate a default one
+            if (!report) {
+                window.aiReportGenerator.updateData(this.currentData);
+                report = await window.aiReportGenerator.generateReport('site-status');
+                this.lastGeneratedReport = report;
+            }
+
+            // Export to PDF
+            const pdfInfo = await window.aiReportGenerator.exportToPDF(report);
+
+            return `📄 **PDF Report Exported Successfully!**\n\n` +
+                   `**Filename:** ${pdfInfo.filename}\n` +
+                   `**Pages:** ${pdfInfo.pages}\n` +
+                   `**Format:** ${pdfInfo.size.format || 'A4'}\n\n` +
+                   `The PDF has been downloaded to your default downloads folder. ` +
+                   `You can now share or print this comprehensive report.`;
+
+        } catch (error) {
+            console.error('PDF export error:', error);
+            return `❌ **Error exporting PDF:** ${error.message}\n\nPlease try generating a report first, then request PDF export.`;
+        }
+    }
+
+    // Determine report type from user message
+    determineReportType(message) {
+        const lowerMessage = message.toLowerCase();
+        
+        if (lowerMessage.includes('connectivity') || lowerMessage.includes('connection')) {
+            return 'connectivity';
+        } else if (lowerMessage.includes('geographic') || lowerMessage.includes('location') || lowerMessage.includes('map')) {
+            return 'geographic';
+        } else if (lowerMessage.includes('maintenance') || lowerMessage.includes('repair')) {
+            return 'maintenance';
+        } else if (lowerMessage.includes('status') || lowerMessage.includes('overview')) {
+            return 'site-status';
+        } else {
+            return 'custom';
+        }
+    }
+
+    // Extract custom prompt from message
+    extractCustomPrompt(message) {
+        // Look for patterns like "report about X" or "generate report for Y"
+        const patterns = [
+            /report (?:about|on|for) (.+)/i,
+            /generate (?:a )?report (?:about|on|for) (.+)/i,
+            /create (?:a )?report (?:about|on|for) (.+)/i
+        ];
+
+        for (const pattern of patterns) {
+            const match = message.match(pattern);
+            if (match) {
+                return match[1].trim();
+            }
+        }
+
+        return null;
     }
 
     // Quick action handler

@@ -71,6 +71,8 @@ class EnhancedChatPanel {
       <div class="chat-quick-actions">
         <button class="quick-action-btn" data-action="analyze" title="Analyze Data"><i class="fas fa-chart-line"></i></button>
         <button class="quick-action-btn" data-action="insights" title="Get Insights"><i class="fas fa-lightbulb"></i></button>
+        <button class="quick-action-btn" data-action="report" title="Generate Report"><i class="fas fa-file-alt"></i></button>
+        <button class="quick-action-btn" data-action="pdf" title="Export PDF"><i class="fas fa-file-pdf"></i></button>
         <button class="quick-action-btn" data-action="issues" title="Find Issues"><i class="fas fa-exclamation-triangle"></i></button>
         <button class="quick-action-btn" data-action="optimize" title="Optimize"><i class="fas fa-magic"></i></button>
         <button class="quick-action-btn" id="btnClearChat" title="Clear Chat"><i class="fas fa-broom"></i></button>
@@ -84,11 +86,13 @@ class EnhancedChatPanel {
             <p>I can help analyze your Site Tracker data.</p>
             <div class="welcome-features">
               <span class="feature-tag">📊 Data Analysis</span>
+              <span class="feature-tag">📋 Generate Reports</span>
+              <span class="feature-tag">📄 Export PDFs</span>
               <span class="feature-tag">🗺️ Geographic Insights</span>
               <span class="feature-tag">🔍 Issue Detection</span>
               <span class="feature-tag">⚡ Optimization</span>
             </div>
-            <p class="welcome-tip"><strong>💡 Try:</strong> "Analyze my connectivity data"</p>
+            <p class="welcome-tip"><strong>💡 Try:</strong> "Generate a site status report" or "Export performance report as PDF"</p>
           </div>
         </div>
         <div id="chatMessagesList" class="chat-messages-list"></div>
@@ -96,9 +100,10 @@ class EnhancedChatPanel {
 
       <div class="chat-input-area">
         <div class="chat-suggestions" id="chatSuggestions">
-          <button class="suggestion-pill">"What patterns do you see in my data?"</button>
+          <button class="suggestion-pill">"Generate a site status report"</button>
+          <button class="suggestion-pill">"Create connectivity analysis report"</button>
+          <button class="suggestion-pill">"Export performance report as PDF"</button>
           <button class="suggestion-pill">"Show me connectivity issues"</button>
-          <button class="suggestion-pill">"Analyze coverage gaps"</button>
         </div>
         <div class="chat-input-wrapper">
           <textarea id="chatInputField" class="chat-input-field" rows="1" placeholder="Ask me anything..."></textarea>
@@ -787,6 +792,79 @@ class EnhancedChatPanel {
     const indicator = this.panelEl.querySelector('#chatTypingIndicator');
     if (indicator) {
       indicator.style.display = 'none';
+    }
+  }
+
+  // Quick action handler for report generation
+  quickAction(action) {
+    const actionMessages = {
+      analyze: "Analyze my data comprehensively",
+      insights: "What insights can you find in my data?",
+      issues: "Find any issues or anomalies in my data",
+      optimize: "Suggest optimizations for my site data",
+      report: "Generate a comprehensive site status report",
+      pdf: "Export the current data as a PDF report"
+    };
+
+    const message = actionMessages[action] || '';
+    if (message) {
+      this.inputEl.value = message;
+      this.sendMessage();
+    }
+
+    // Handle special actions
+    if (action === 'report' && window.aiReportGenerator) {
+      // Trigger report generation immediately
+      try {
+        this.addMessage('🔄 Generating comprehensive site report...', 'ai');
+        const report = await window.aiReportGenerator.generateReport('site-status');
+        
+        // Display report summary in chat
+        let reportSummary = `📊 **Site Status Report Generated**\n\n`;
+        reportSummary += `**Report ID:** ${report.id}\n`;
+        reportSummary += `**Generated:** ${new Date(report.generatedAt).toLocaleString()}\n`;
+        reportSummary += `**Records Analyzed:** ${report.dataSnapshot.totalRecords}\n\n`;
+        reportSummary += `**Key Insights:**\n${report.insights}\n\n`;
+        reportSummary += `**Recommendations:**\n${report.recommendations.map(r => `• ${r}`).join('\n')}\n\n`;
+        reportSummary += `✅ Report generated successfully! You can now export it as PDF.`;
+        
+        this.addMessage(reportSummary, 'ai');
+        
+        // Store the report for PDF export
+        window.lastGeneratedReport = report;
+        
+      } catch (error) {
+        this.addMessage(`❌ Error generating report: ${error.message}`, 'ai');
+      }
+      return; // Don't send the message to AI
+    } else if (action === 'pdf' && window.aiReportGenerator) {
+      // Trigger PDF export
+      try {
+        this.addMessage('📄 Generating PDF report...', 'ai');
+        
+        let report = window.lastGeneratedReport;
+        if (!report) {
+          // Generate a quick report first
+          report = await window.aiReportGenerator.generateReport('site-status');
+          window.lastGeneratedReport = report;
+        }
+        
+        const pdfInfo = await window.aiReportGenerator.exportToPDF(report);
+        this.addMessage(`✅ **PDF Report Generated Successfully!**\n\n📁 **File:** ${pdfInfo.filename}\n📊 **Pages:** ${pdfInfo.pages}\n📅 **Generated:** ${new Date().toLocaleString()}\n\nThe PDF has been downloaded to your device.`, 'ai');
+        
+      } catch (error) {
+        this.addMessage(`❌ Error generating PDF: ${error.message}`, 'ai');
+      }
+      return; // Don't send the message to AI
+    }
+  }
+
+  // Clear chat messages
+  clearChat() {
+    const list = this.panelEl.querySelector('#chatMessagesList');
+    if (list) {
+      list.innerHTML = '';
+      this.addMessage('Chat cleared. How can I help you today?', 'ai');
     }
   }
 }
