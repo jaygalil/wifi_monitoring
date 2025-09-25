@@ -363,6 +363,13 @@
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-4">
                                 <h2 id="map-heading" class="text-lg font-semibold text-gray-900">Site Locations</h2>
                                 <div class="flex items-center space-x-2 flex-wrap">
+                                    <button onclick="toggleLocationDetails()" 
+                                            class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 transition-colors focus-visible:focus"
+                                            aria-label="Toggle location details"
+                                            id="locationToggle">
+                                        <i class="fas fa-map-marker-alt mr-1" aria-hidden="true"></i>
+                                        Show Locations
+                                    </button>
                                     <button onclick="toggleHeatmap()" 
                                             class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md text-primary-700 bg-primary-100 hover:bg-primary-200 transition-colors focus-visible:focus"
                                             aria-label="Toggle heatmap view"
@@ -387,6 +394,19 @@
                             </div>
                             <div class="map-container">
                                 <div id="map" class="h-full w-full rounded-lg" role="img" aria-label="Interactive map showing site locations"></div>
+                            </div>
+                            
+                            <!-- Location Details Panel -->
+                            <div id="locationDetails" class="location-details-panel" style="display: none;">
+                                <div class="bg-gray-50 rounded-lg p-4 mt-4">
+                                    <h4 class="text-md font-semibold text-gray-900 mb-3">
+                                        <i class="fas fa-map-marker-alt text-blue-600 mr-2"></i>
+                                        Site Locations Overview
+                                    </h4>
+                                    <div id="locationList" class="space-y-2 max-h-64 overflow-y-auto">
+                                        <p class="text-gray-500 text-sm">Loading location data...</p>
+                                    </div>
+                                </div>
                             </div>
                         </section>
                     </div>
@@ -751,6 +771,19 @@
             loadConfiguration();
             setupEventListeners();
             showToast('Application initialized successfully', 'success');
+            
+            console.log('DOM loaded, checking for auto-config...');
+            
+            // Force load data with hardcoded values for testing
+            setTimeout(() => {
+                console.log('Force loading data for testing...');
+                // Set the API key and sheet ID directly for testing
+                localStorage.setItem('apiKey', 'AIzaSyAcStfXXwdeh2d_MyFOorLzOcvplHAWjZY');
+                localStorage.setItem('sheetId', '1aNEX-jyWYXXPL-RjJ-18-XC3iad3GvxFHyrMajgjHUA');
+                localStorage.setItem('sheetRange', 'Sheet1!A1:S100');
+                
+                processSheetData();
+            }, 1000);
         });
 
         // Initialize Leaflet map
@@ -772,9 +805,9 @@
         // Load configuration and data
         function loadConfiguration() {
             // Try to load from auto-config first
-            if (window.autoConfig && window.autoConfig.isEnabled) {
+            if (window.autoConfig && window.autoConfig.getConfiguration) {
                 const config = window.autoConfig.getConfiguration();
-                if (config.sheets && config.sheets.apiKey && config.sheets.sheetId) {
+                if (config && config.sheets && config.sheets.apiKey && config.sheets.sheetId) {
                     processSheetData();
                     return;
                 }
@@ -799,11 +832,13 @@
                 let apiKey, sheetId, range;
                 
                 // Get configuration
-                if (window.autoConfig && window.autoConfig.isEnabled) {
+                if (window.autoConfig && window.autoConfig.getConfiguration) {
                     const config = window.autoConfig.getConfiguration();
-                    apiKey = config.sheets.apiKey;
-                    sheetId = config.sheets.sheetId;
-                    range = config.sheets.range || 'Sheet1!A:Z';
+                    if (config && config.sheets) {
+                        apiKey = config.sheets.apiKey;
+                        sheetId = config.sheets.sheetId;
+                        range = config.sheets.range || 'Sheet1!A:Z';
+                    }
                 } else {
                     apiKey = localStorage.getItem('apiKey');
                     sheetId = localStorage.getItem('sheetId');
@@ -844,6 +879,9 @@
             const headers = values[0].map(h => h.toLowerCase().trim());
             const data = [];
             
+            console.log('Headers:', headers);
+            console.log('First few rows:', values.slice(0, 3));
+            
             for (let i = 1; i < values.length; i++) {
                 const row = values[i];
                 const item = {};
@@ -852,21 +890,46 @@
                     item[header] = row[index] || '';
                 });
                 
-                // Validate required fields
-                if (item.latitude && item.longitude && item.name) {
-                    const lat = parseFloat(item.latitude);
-                    const lng = parseFloat(item.longitude);
+                // Use columns S (index 17) and T (index 18) for coordinates
+                // S = Latitude (18th column, 0-indexed = 17), T = Longitude (19th column, 0-indexed = 18)
+                const latFromColumnS = row[17]; // Column S (18th column, 0-indexed = 17)
+                const lngFromColumnT = row[18]; // Column T (19th column, 0-indexed = 18)
+                
+                console.log(`Row ${i}: lat=${latFromColumnS}, lng=${lngFromColumnT}`);
+                
+                // Also check for traditional latitude/longitude columns as fallback
+                const latFromHeader = item.latitude || item.lat;
+                const lngFromHeader = item.longitude || item.lng || item.long;
+                
+                // Use column S/T first, then fallback to header-based columns
+                const latitude = latFromColumnS || latFromHeader;
+                const longitude = lngFromColumnT || lngFromHeader;
+                
+                if (latitude && longitude) {
+                    const lat = parseFloat(latitude);
+                    const lng = parseFloat(longitude);
+                    
+                    console.log(`Parsed coordinates: lat=${lat}, lng=${lng}`);
                     
                     if (!isNaN(lat) && !isNaN(lng)) {
                         item.latitude = lat;
                         item.longitude = lng;
-                        item.status = item.status || 'unknown';
-                        item.category = item.category || 'uncategorized';
+                        item.name = item.name || item['location name'] || item['ap site name'] || item.sitename || `Site ${i}`;
+                        item.status = item.status || 'online'; // Default to online for sites with coordinates
+                        item.category = item.category || item.project || 'site';
+                        
+                        console.log(`Adding site: ${item.name} at ${lat}, ${lng}`);
                         data.push(item);
                     }
+                } else {
+                    console.log(`Row ${i}: No valid coordinates found`);
                 }
             }
             
+            console.log(`Parsed ${data.length} sites with coordinates from Google Sheets`);
+            if (data.length > 0) {
+                console.log('Sample site data:', data[0]);
+            }
             return data;
         }
 
@@ -1367,6 +1430,65 @@
             isClusteringEnabled = !isClusteringEnabled;
             updateMap();
             showToast(`Clustering ${isClusteringEnabled ? 'enabled' : 'disabled'}`, 'info');
+        }
+
+        // Toggle location details panel
+        function toggleLocationDetails() {
+            const locationDetails = document.getElementById('locationDetails');
+            const toggleButton = document.getElementById('locationToggle');
+            const isVisible = locationDetails.style.display !== 'none';
+            
+            if (isVisible) {
+                locationDetails.style.display = 'none';
+                toggleButton.innerHTML = '<i class="fas fa-map-marker-alt mr-1" aria-hidden="true"></i>Show Locations';
+                toggleButton.className = toggleButton.className.replace('bg-green-100 text-green-700', 'bg-blue-100 text-blue-700');
+            } else {
+                locationDetails.style.display = 'block';
+                toggleButton.innerHTML = '<i class="fas fa-eye-slash mr-1" aria-hidden="true"></i>Hide Locations';
+                toggleButton.className = toggleButton.className.replace('bg-blue-100 text-blue-700', 'bg-green-100 text-green-700');
+                updateLocationList();
+            }
+            
+            showToast(`Location details ${isVisible ? 'hidden' : 'shown'}`, 'info');
+        }
+
+        // Update location list
+        function updateLocationList() {
+            const locationList = document.getElementById('locationList');
+            
+            if (filteredData.length === 0) {
+                locationList.innerHTML = '<p class="text-gray-500 text-sm">No locations to display</p>';
+                return;
+            }
+            
+            const locationsHTML = filteredData.map(site => `
+                <div class="flex items-center justify-between p-2 bg-white rounded border border-gray-200 hover:bg-gray-50 transition-colors">
+                    <div class="flex-1">
+                        <div class="font-medium text-sm text-gray-900">${site.name}</div>
+                        <div class="text-xs text-gray-500">
+                            <i class="fas fa-map-pin mr-1"></i>
+                            ${site.latitude.toFixed(6)}, ${site.longitude.toFixed(6)}
+                        </div>
+                        ${site.status ? `<span class="inline-block px-2 py-1 text-xs rounded-full ${getStatusColor(site.status)} mt-1">${site.status}</span>` : ''}
+                    </div>
+                    <button onclick="focusOnSite(${site.latitude}, ${site.longitude})" 
+                            class="ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors">
+                        <i class="fas fa-crosshairs"></i>
+                    </button>
+                </div>
+            `).join('');
+            
+            locationList.innerHTML = locationsHTML;
+        }
+
+        // Get status color classes
+        function getStatusColor(status) {
+            switch(status?.toLowerCase()) {
+                case 'online': return 'bg-green-100 text-green-800';
+                case 'offline': return 'bg-red-100 text-red-800';
+                case 'maintenance': return 'bg-yellow-100 text-yellow-800';
+                default: return 'bg-gray-100 text-gray-800';
+            }
         }
 
         // Focus on specific site
@@ -2002,6 +2124,7 @@ Recent Issues: ${recentIssues.length > 0 ?
     </script>
 
     <!-- Load additional scripts -->
+    <script src="config.js"></script>
     <script src="auto-config.js"></script>
     
     <script src="toast-manager.js"></script>

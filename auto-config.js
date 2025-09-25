@@ -570,6 +570,14 @@ Continue?
             }
         }, 2000);
     }
+    
+    // Get current configuration
+    getConfiguration() {
+        if (window.SITE_TRACKER_CONFIG) {
+            return window.SITE_TRACKER_CONFIG;
+        }
+        return null;
+    }
 }
 
 // Initialize auto-configuration (prevent duplicate initialization)
