@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Data Loading Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        #results { margin-top: 20px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .log { background: #f8f9fa; padding: 10px; margin: 10px 0; border: 1px solid #e9ecef; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Site Tracker Data Loading Test</h1>
+    <button onclick="testDataLoading()">🔄 Test Data Loading</button>
+    <div id="results"></div>
+
+    <script src="config.js"></script>
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.innerHTML = message;
+            results.appendChild(div);
+            console.log(message);
+        }
+
+        function logCode(message) {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = 'log';
+            div.textContent = message;
+            results.appendChild(div);
+        }
+
+        async function testDataLoading() {
+            document.getElementById('results').innerHTML = '';
+            
+            log('🔄 Starting data loading test...', 'info');
+            
+            // Test 1: Configuration
+            if (!window.SITE_TRACKER_CONFIG) {
+                log('❌ config.js not loaded', 'error');
+                return;
+            }
+            log('✅ config.js loaded successfully', 'success');
+            
+            const config = window.SITE_TRACKER_CONFIG.sheets;
+            if (!config || !config.apiKey || !config.sheetId) {
+                log('❌ Google Sheets configuration missing', 'error');
+                return;
+            }
+            log('✅ Google Sheets configuration found', 'success');
+            
+            // Test 2: API Call
+            try {
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${config.sheetId}/values/${config.range}?key=${config.apiKey}`;
+                log('🔄 Making API request...', 'info');
+                
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    log(`❌ API Error: ${response.status} - ${errorText}`, 'error');
+                    return;
+                }
+                
+                log('✅ API request successful', 'success');
+                
+                const data = await response.json();
+                if (!data.values || data.values.length === 0) {
+                    log('❌ No data found in API response', 'error');
+                    return;
+                }
+                
+                log(`✅ Received ${data.values.length} rows of data`, 'success');
+                
+                // Test 3: Data Parsing
+                const headers = data.values[0];
+                log(`📋 Headers: ${headers.length} columns`, 'info');
+                logCode(`Headers: ${headers.join(', ')}`);
+                
+                // Test 4: Sample Data Processing
+                const sampleData = data.values.slice(1, 6); // First 5 data rows
+                let parsedCount = 0;
+                let withCoords = 0;
+                
+                sampleData.forEach((row, index) => {
+                    const item = {};
+                    headers.forEach((header, i) => {
+                        item[header.toLowerCase().trim()] = row[i] || '';
+                    });
+                    
+                    // Set name
+                    item.name = item.name || item['location name'] || item['ap site name'] || `Site ${index + 1}`;
+                    
+                    // Set status from column X (index 23)
+                    const statusFromColumnX = row[23];
+                    if (statusFromColumnX && statusFromColumnX.toUpperCase() === 'UP') {
+                        item.status = 'online';
+                    } else if (statusFromColumnX && statusFromColumnX.toUpperCase() === 'DOWN') {
+                        item.status = 'offline';
+                    } else {
+                        item.status = 'unknown';
+                    }
+                    
+                    // Check coordinates
+                    const lat = parseFloat(row[17]); // Column R
+                    const lng = parseFloat(row[18]); // Column S
+                    
+                    if (!isNaN(lat) && !isNaN(lng)) {
+                        item.latitude = lat;
+                        item.longitude = lng;
+                        withCoords++;
+                    }
+                    
+                    parsedCount++;
+                });
+                
+                log(`✅ Parsed ${parsedCount} sample records`, 'success');
+                log(`🗺️ ${withCoords} records have coordinates for mapping`, 'info');
+                
+                // Test 5: Show sample data
+                const table = document.createElement('table');
+                table.innerHTML = `
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Location</th>
+                            <th>Status</th>
+                            <th>Coordinates</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${sampleData.map((row, index) => {
+                            const name = row[4] || row[3] || `Site ${index + 1}`;
+                            const location = row[3] || row[8] || 'Not specified';
+                            const status = row[23] || 'Unknown';
+                            const coords = `${row[17] || 'N/A'}, ${row[18] || 'N/A'}`;
+                            
+                            return `<tr>
+                                <td>${name}</td>
+                                <td>${location}</td>
+                                <td>${status}</td>
+                                <td>${coords}</td>
+                            </tr>`;
+                        }).join('')}
+                    </tbody>
+                `;
+                
+                document.getElementById('results').appendChild(table);
+                
+                log('🎉 Data loading test completed successfully!', 'success');
+                log('📊 Your Google Sheets data is accessible and properly formatted.', 'info');
+                
+            } catch (error) {
+                log(`❌ Error during test: ${error.message}`, 'error');
+            }
+        }
+        
+        // Auto-run test on page load
+        window.addEventListener('load', () => {
+            setTimeout(testDataLoading, 1000);
+        });
+    </script>
+</body>
+</html>

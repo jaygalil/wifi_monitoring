@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Site Tracker Fix Test</title>
+</head>
+<body>
+    <h1>Site Tracker Fix Verification</h1>
+    <div id="results"></div>
+    
+    <script src="config.js"></script>
+    <script>
+        const results = document.getElementById('results');
+        
+        function log(message, color = 'black') {
+            const div = document.createElement('div');
+            div.style.color = color;
+            div.textContent = message;
+            results.appendChild(div);
+        }
+        
+        // Test configuration loading
+        log('Testing configuration loading...', 'blue');
+        
+        if (window.SITE_TRACKER_CONFIG) {
+            log('✅ config.js loaded successfully', 'green');
+            
+            const sheets = window.SITE_TRACKER_CONFIG.sheets;
+            if (sheets && sheets.apiKey && sheets.sheetId) {
+                log('✅ Google Sheets configuration found', 'green');
+                log(`API Key: ${sheets.apiKey.substring(0, 10)}...`, 'gray');
+                log(`Sheet ID: ${sheets.sheetId.substring(0, 20)}...`, 'gray');
+                log(`Auto-load: ${sheets.autoLoadData ? 'Enabled' : 'Disabled'}`, 'gray');
+                
+                // Test API call
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheets.sheetId}/values/Sheet1!A1:B1?key=${sheets.apiKey}`;
+                
+                log('Testing API connectivity...', 'blue');
+                
+                fetch(url)
+                    .then(response => {
+                        if (response.ok) {
+                            log('✅ Google Sheets API is accessible', 'green');
+                            log('🎉 All tests passed! The fix should work.', 'green');
+                        } else {
+                            log('❌ Google Sheets API error: ' + response.status, 'red');
+                        }
+                    })
+                    .catch(error => {
+                        log('❌ Network error: ' + error.message, 'red');
+                    });
+                
+            } else {
+                log('❌ Google Sheets configuration missing', 'red');
+            }
+        } else {
+            log('❌ config.js not loaded', 'red');
+        }
+    </script>
+</body>
+</html>

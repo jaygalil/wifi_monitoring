@@ -51,7 +51,7 @@
                         <h1 class="text-xl font-semibold text-gray-900">Site Tracker</h1>
                     </div>
                     <div class="flex items-center space-x-4">
-                        <button onclick="toggleAIChat()" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2">
+                        <button onclick="if(window.enhancedChat) window.enhancedChat.toggleChat()" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2">
                             <i class="fas fa-robot"></i>
                             <span>AI Assistant</span>
                         </button>
@@ -197,140 +197,16 @@
         </main>
     </div>
 
-    <!-- AI Assistant Panel -->
-    <div id="aiAssistantPanel" class="fixed bottom-6 right-6 w-96 bg-white rounded-xl shadow-2xl border border-gray-200 hidden resize overflow-hidden" style="min-width: 320px; min-height: 400px; max-width: 600px; max-height: 80vh;">
-        <!-- Draggable Header -->
-        <div id="aiAssistantHeader" class="p-4 border-b border-gray-200 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-t-xl cursor-move">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-2">
-                    <i class="fas fa-robot text-lg"></i>
-                    <h3 class="text-lg font-semibold">AI Assistant</h3>
-                    <span id="aiStatus" class="px-2 py-1 bg-white/20 rounded-full text-xs">Ready</span>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <button id="aiMinimizeBtn" class="text-white/80 hover:text-white p-1 rounded">
-                        <i class="fas fa-minus"></i>
-                    </button>
-                    <button onclick="closeAIAssistant()" class="text-white/80 hover:text-white p-1 rounded">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="p-3 bg-gray-50 border-b border-gray-200">
-            <div class="text-xs font-medium text-gray-600 mb-2">Quick Actions</div>
-            <div class="flex flex-wrap gap-2">
-                <button onclick="sendQuickMessage('Analyze my site data')" class="px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-xs hover:bg-primary-200 transition-colors">
-                    <i class="fas fa-chart-line mr-1"></i>Analyze Data
-                </button>
-                <button onclick="sendQuickMessage('Show me offline sites')" class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs hover:bg-red-200 transition-colors">
-                    <i class="fas fa-exclamation-triangle mr-1"></i>Find Issues
-                </button>
-                <button onclick="sendQuickMessage('Give me insights about my sites')" class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs hover:bg-blue-200 transition-colors">
-                    <i class="fas fa-lightbulb mr-1"></i>Get Insights
-                </button>
-            </div>
-        </div>
-
-        <!-- Chat Container -->
-        <div id="aiChatContainer" class="flex-1 overflow-y-auto p-4 space-y-3" style="height: 300px;">
-            <!-- Welcome Message -->
-            <div class="flex items-start space-x-3">
-                <div class="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center flex-shrink-0">
-                    <i class="fas fa-robot text-white text-sm"></i>
-                </div>
-                <div class="bg-gray-100 rounded-lg p-3 max-w-xs">
-                    <p class="text-sm text-gray-800">👋 Hi! I'm your AI assistant. I can help you analyze your site data, find patterns, and answer questions about your sites.</p>
-                    <p class="text-xs text-gray-600 mt-2">Powered by OpenRouter</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Input Area -->
-        <div class="p-4 border-t border-gray-200 bg-white rounded-b-xl">
-            <div class="flex space-x-2">
-                <input type="text" id="aiInput" placeholder="Ask about your data..." 
-                       class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
-                       onkeypress="if(event.key==='Enter') sendAIMessage()">
-                <button onclick="sendAIMessage()" id="aiSendBtn" class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                    <i class="fas fa-paper-plane"></i>
-                </button>
-            </div>
-            <div class="flex items-center justify-between mt-2 text-xs text-gray-500">
-                <span id="aiConnectionStatus">🟢 Connected to OpenRouter</span>
-                <span id="aiTokenCount">0 tokens used</span>
-            </div>
-        </div>
-
-        <!-- Resize Handle -->
-        <div class="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize opacity-50 hover:opacity-100">
-            <i class="fas fa-grip-lines-vertical text-gray-400 text-xs"></i>
-        </div>
-    </div>
-
-    <!-- AI Chat Modal -->
-    <div id="aiChatModal" class="fixed top-20 right-6 z-[9999] hidden">
-        <div id="aiChatWindow" class="bg-white rounded-lg shadow-2xl flex flex-col border border-gray-200 resizable-chat" style="box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); width: 320px; height: 400px; min-width: 280px; min-height: 300px; max-width: 600px; max-height: 80vh;">
-            <!-- Header -->
-            <div id="aiChatHeader" class="flex items-center justify-between p-4 border-b bg-purple-600 text-white rounded-t-lg cursor-move select-none">
-                <div class="flex items-center space-x-2">
-                    <i class="fas fa-robot text-lg"></i>
-                    <h3 class="text-lg font-semibold">AI Assistant</h3>
-                    <span id="aiConnectionStatus" class="px-2 py-1 bg-white/20 rounded-full text-xs">🟢 Connected</span>
-                </div>
-                <button onclick="closeAIChat()" class="text-white/80 hover:text-white p-1 rounded">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <!-- Chat Messages -->
-            <div id="aiChatMessages" class="flex-1 overflow-y-auto p-4 space-y-3">
-                <!-- Welcome Message -->
-                <div class="flex items-start space-x-3">
-                    <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
-                        <i class="fas fa-robot text-white text-sm"></i>
-                    </div>
-                    <div class="bg-gray-100 rounded-lg p-3 max-w-xs">
-                        <p class="text-sm text-gray-800">👋 Hi! I'm your AI assistant. I can help you analyze your site data, find patterns, and answer questions about your sites.</p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Input Area -->
-            <div class="p-4 border-t">
-                <div class="flex space-x-2">
-                    <input type="text" id="aiChatInput" placeholder="Ask me about your sites..." 
-                           class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                           onkeypress="if(event.key==='Enter') sendAIChatMessage()">
-                    <button onclick="sendAIChatMessage()" id="aiChatSendBtn" 
-                            class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
-                <div class="flex justify-between items-center mt-2 text-xs text-gray-500">
-                    <span id="aiTokenCount">0 tokens used</span>
-                    <span>Powered by OpenRouter</span>
-                </div>
-            </div>
-            
-            <!-- Resize Handles -->
-            <div class="resize-handle resize-handle-se" title="Drag to resize"></div>
-            <div class="resize-handle resize-handle-s" title="Drag to resize height"></div>
-            <div class="resize-handle resize-handle-e" title="Drag to resize width"></div>
-            <div class="resize-handle resize-handle-sw" title="Drag to resize"></div>
-            <div class="resize-handle resize-handle-w" title="Drag to resize width"></div>
-            <div class="resize-handle resize-handle-nw" title="Drag to resize"></div>
-            <div class="resize-handle resize-handle-n" title="Drag to resize height"></div>
-            <div class="resize-handle resize-handle-ne" title="Drag to resize"></div>
-        </div>
-    </div>
+    <!-- Enhanced Chat Panel will create the AI chat interface -->
+    <!-- Duplicate AI panels removed to prevent conflicts -->
 
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
+    
+    <!-- Configuration -->
+    <script src="config.js"></script>
     
     <script>
         // Global variables
@@ -358,25 +234,20 @@
             
             console.log('DOM loaded, checking for auto-config...');
             
-            // Add debug info to page
-            setTimeout(() => {
-                const debugInfo = document.createElement('div');
-                debugInfo.id = 'debugInfo';
-                debugInfo.style.cssText = 'position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.8); color: white; padding: 10px; border-radius: 5px; font-family: monospace; font-size: 12px; z-index: 10000; max-width: 400px;';
-                debugInfo.innerHTML = '<strong>Debug Info:</strong><br>Check console for detailed logs...';
-                document.body.appendChild(debugInfo);
-            }, 500);
+            // Debug mode check
+            if (window.SITE_TRACKER_CONFIG && window.SITE_TRACKER_CONFIG.dev.debug) {
+                // Add debug info to page only if debug mode is enabled
+                setTimeout(() => {
+                    const debugInfo = document.createElement('div');
+                    debugInfo.id = 'debugInfo';
+                    debugInfo.style.cssText = 'position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.8); color: white; padding: 10px; border-radius: 5px; font-family: monospace; font-size: 12px; z-index: 10000; max-width: 400px;';
+                    debugInfo.innerHTML = '<strong>Debug Info:</strong><br>Check console for detailed logs...';
+                    document.body.appendChild(debugInfo);
+                }, 500);
+            }
             
-            // Force load data with hardcoded values for testing
-            setTimeout(() => {
-                console.log('Force loading data for testing...');
-                // Set the API key and sheet ID directly for testing
-                localStorage.setItem('apiKey', 'AIzaSyAcStfXXwdeh2d_MyFOorLzOcvplHAWjZY');
-                localStorage.setItem('sheetId', '1aNEX-jyWYXXPL-RjJ-18-XC3iad3GvxFHyrMajgjHUA');
-                localStorage.setItem('sheetRange', 'Sheet1!A:X');
-                
-                processSheetData();
-            }, 1000);
+            // Configuration and auto-loading is now handled by loadConfiguration()
+            console.log('🚀 Site Tracker Dashboard initialized');
         });
 
         // Initialize Leaflet map
@@ -397,7 +268,30 @@
 
         // Load configuration and data
         function loadConfiguration() {
-            // Try to load from auto-config first
+            console.log('🔧 Loading configuration...');
+            
+            // Try to load from config.js first
+            if (window.SITE_TRACKER_CONFIG && window.SITE_TRACKER_CONFIG.sheets) {
+                const config = window.SITE_TRACKER_CONFIG.sheets;
+                console.log('📋 Found config.js configuration');
+                
+                if (config.autoLoadSheetConfig && config.apiKey && config.sheetId) {
+                    console.log('✅ Auto-loading Google Sheets configuration from config.js');
+                    // Store in localStorage for the processSheetData function
+                    localStorage.setItem('apiKey', config.apiKey);
+                    localStorage.setItem('sheetId', config.sheetId);
+                    localStorage.setItem('sheetRange', config.range || 'Sheet1!A:Z');
+                    
+                    if (config.autoLoadData) {
+                        processSheetData();
+                    } else {
+                        showToast('Google Sheets configured. Click Load Data to fetch your data.', 'success');
+                    }
+                    return;
+                }
+            }
+            
+            // Try to load from auto-config second
             if (window.autoConfig && window.autoConfig.getConfiguration) {
                 const config = window.autoConfig.getConfiguration();
                 if (config && config.sheets && config.sheets.apiKey && config.sheets.sheetId) {
@@ -411,9 +305,11 @@
             const sheetId = localStorage.getItem('sheetId');
             
             if (apiKey && sheetId) {
+                console.log('📋 Using localStorage configuration');
                 processSheetData();
             } else {
-                showToast('Please configure your API settings', 'warning');
+                console.log('⚠️ No API configuration found');
+                showToast('Please configure your Google Sheets API settings', 'warning');
             }
         }
 
@@ -465,6 +361,14 @@
                 console.log('Parsed data count:', allData.length);
                 filteredData = [...allData];
                 
+                // Store data in localStorage as backup for AI access
+                try {
+                    localStorage.setItem('siteTracker_lastData', JSON.stringify(allData));
+                    console.log('📦 Data backed up to localStorage for AI access');
+                } catch (e) {
+                    console.warn('Failed to backup data to localStorage:', e);
+                }
+                
                 updateMap();
                 updateStats();
                 updateTable();
@@ -481,6 +385,32 @@
                     window.aiAssistant.updateData(allData);
                     console.log('✅ AI Assistant updated with', allData.length, 'records');
                 }
+                
+                // Update Enhanced Chat Panel with data awareness
+                if (window.enhancedChat && allData.length > 0) {
+                    console.log('🗨️ Enhanced Chat Panel notified of data update');
+                    // The chat panel will access data via window.allData
+                }
+                
+                // Notify AI Configuration Bridge about data update
+                if (window.aiConfigBridge) {
+                    setTimeout(() => {
+                        console.log('🔔 Notifying AI Configuration Bridge of data update...');
+                        window.aiConfigBridge.onDataUpdated && window.aiConfigBridge.onDataUpdated();
+                    }, 500);
+                }
+                
+                // Global data update event for any other AI systems
+                setTimeout(() => {
+                    window.dispatchEvent(new CustomEvent('siteTrackerDataLoaded', {
+                        detail: {
+                            data: allData,
+                            count: allData.length,
+                            timestamp: new Date().toISOString()
+                        }
+                    }));
+                    console.log('🔊 Dispatched global data loaded event');
+                }, 1000);
                 
                 showToast('Data loaded successfully', 'success');
                 
@@ -690,35 +620,42 @@
 
             console.log('Status counts:', statusCounts);
 
-            // Update header metrics
-            document.getElementById('totalSites').textContent = total;
-            document.getElementById('activeSites').textContent = filtered;
-            document.getElementById('mappedLocations').textContent = mapped;
-            document.getElementById('filteredResults').textContent = filtered;
-            document.getElementById('onlineCount').textContent = statusCounts.online;
-            document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString();
+            // Update header metrics (safely)
+            const updateElement = (id, value) => {
+                const element = document.getElementById(id);
+                if (element) element.textContent = value;
+            };
+            
+            updateElement('totalSites', total);
+            updateElement('activeSites', filtered);
+            updateElement('mappedLocations', mapped);
+            updateElement('filteredResults', filtered);
+            updateElement('onlineCount', statusCounts.online);
+            updateElement('lastUpdated', new Date().toLocaleTimeString());
 
             // Update status overview - show online and offline counts
-            document.getElementById('statusOnline').textContent = statusCounts.online;
-            document.getElementById('statusWarning').textContent = statusCounts.warning;
-            document.getElementById('statusOffline').textContent = statusCounts.offline;
+            updateElement('statusOnline', statusCounts.online);
+            updateElement('statusWarning', statusCounts.warning);
+            updateElement('statusOffline', statusCounts.offline);
 
             // Update table counts
-            document.getElementById('totalCount').textContent = total;
+            updateElement('totalCount', total);
             updatePaginationInfo();
         }
 
         // Update data table with pagination
         function updateTable() {
             const tbody = document.getElementById('dataTableBody');
-            const mobileBody = document.getElementById('mobileTableBody');
+            const mobileBody = document.getElementById('mobileTableBody'); // This might not exist
             
             // Show loading
             document.getElementById('tableLoading').classList.remove('hidden');
             
             // Clear existing content
             tbody.innerHTML = '';
-            mobileBody.innerHTML = '';
+            if (mobileBody) {
+                mobileBody.innerHTML = '';
+            }
 
             // Calculate pagination
             const startIndex = (currentPage - 1) * rowsPerPage;
@@ -770,45 +707,46 @@
                 tbody.appendChild(row);
             });
 
-            // Populate mobile cards
-            pageData.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'p-4 hover:bg-gray-50 transition-colors';
-                
-                card.innerHTML = `
-                    <div class="flex items-start justify-between">
-                        <div class="flex-1 min-w-0">
-                            <h4 class="text-sm font-medium text-gray-900 truncate">${item.name || 'Unknown'}</h4>
-                            <p class="text-sm text-gray-500 mt-1">${item.location || 'Not specified'}</p>
-                            ${item.description ? `<p class="text-xs text-gray-400 mt-1 truncate">${item.description}</p>` : ''}
-                            <div class="flex items-center mt-2 space-x-4">
-                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusClass(item.status)}">
-                                    <i class="fas fa-circle text-xs mr-1"></i>
-                                    ${item.status || 'Unknown'}
-                                </span>
-                                <span class="text-xs text-gray-500">${item.category || 'Uncategorized'}</span>
+            // Populate mobile cards (only if mobile body exists)
+            if (mobileBody) {
+                pageData.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'p-4 hover:bg-gray-50 transition-colors';
+                    
+                    card.innerHTML = `
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1 min-w-0">
+                                <h4 class="text-sm font-medium text-gray-900 truncate">${item.name || 'Unknown'}</h4>
+                                <p class="text-sm text-gray-500 mt-1">${item['location name'] || item.locality || 'Not specified'}</p>
+                                <div class="flex items-center mt-2 space-x-4">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusClass(item.status)}">
+                                        <i class="fas fa-circle text-xs mr-1"></i>
+                                        ${item.status || 'Unknown'}
+                                    </span>
+                                    <span class="text-xs text-gray-500">${item.project || 'Uncategorized'}</span>
+                                </div>
+                                <div class="text-xs text-gray-400 mt-1">
+                                    Last update: ${item['date of activation'] || 'Not specified'}
+                                </div>
                             </div>
-                            <div class="text-xs text-gray-400 mt-1">
-                                Last update: ${formatDate(item.lastupdate) || 'Never'}
+                            <div class="flex items-center space-x-2 ml-4">
+                                <button onclick="focusOnSite(${item.latitude}, ${item.longitude})" 
+                                        class="text-primary-600 hover:text-primary-900 p-2 rounded-full hover:bg-primary-50 transition-colors"
+                                        title="View on map">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </button>
+                                <button onclick="editSite('${item.name}')" 
+                                        class="text-gray-600 hover:text-gray-900 p-2 rounded-full hover:bg-gray-50 transition-colors"
+                                        title="Edit site">
+                                    <i class="fas fa-edit"></i>
+                                </button>
                             </div>
                         </div>
-                        <div class="flex items-center space-x-2 ml-4">
-                            <button onclick="focusOnSite(${item.latitude}, ${item.longitude})" 
-                                    class="text-primary-600 hover:text-primary-900 p-2 rounded-full hover:bg-primary-50 transition-colors"
-                                    title="View on map">
-                                <i class="fas fa-map-marker-alt"></i>
-                            </button>
-                            <button onclick="editSite('${item.name}')" 
-                                    class="text-gray-600 hover:text-gray-900 p-2 rounded-full hover:bg-gray-50 transition-colors"
-                                    title="Edit site">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-                
-                mobileBody.appendChild(card);
-            });
+                    `;
+                    
+                    mobileBody.appendChild(card);
+                });
+            }
 
             // Hide loading
             document.getElementById('tableLoading').classList.add('hidden');
@@ -839,9 +777,11 @@
             document.getElementById('paginationEnd').textContent = endIndex;
             document.getElementById('paginationTotal').textContent = total;
             
-            // Update showing info
-            document.getElementById('showingStart').textContent = total > 0 ? startIndex + 1 : 0;
-            document.getElementById('showingEnd').textContent = endIndex;
+            // Update showing info (only if elements exist)
+            const showingStart = document.getElementById('showingStart');
+            const showingEnd = document.getElementById('showingEnd');
+            if (showingStart) showingStart.textContent = total > 0 ? startIndex + 1 : 0;
+            if (showingEnd) showingEnd.textContent = endIndex;
             
             // Update pagination buttons
             const totalPages = Math.ceil(total / rowsPerPage);
@@ -1974,6 +1914,13 @@ Recent Issues: ${recentIssues.length > 0 ?
 
     <!-- AI Report Generator -->
     <script src="ai-report-generator.js"></script>
+    
+    <!-- AI System Scripts - Load after main application -->
+    <script src="auto-config.js"></script>
+    <script src="ai-config-bridge.js"></script>
+    <script src="ai-assistant.js"></script>
+    <script src="enhanced-chat-panel.js"></script>
+    <script src="debug-ai-data.js"></script>
 
 </body>
 </html>

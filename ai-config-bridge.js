@@ -402,18 +402,43 @@ class AIConfigBridge {
     
     // Get current dashboard data
     getCurrentDashboardData() {
-        // Try to get data from various global variables
-        const data = window.allData || window.filteredData || window.currentData || [];
+        // Priority: Try to get data from various global variables
+        let data = window.allData || window.filteredData || window.currentData || [];
         
-        // Also check for data in table
-        const tableBody = document.querySelector('#tableBody');
+        console.log('🔍 Checking for dashboard data...');
+        console.log('window.allData:', window.allData ? `${window.allData.length} records` : 'not found');
+        console.log('window.filteredData:', window.filteredData ? `${window.filteredData.length} records` : 'not found');
+        
+        // If no data found, try to check if data exists in localStorage as backup
+        if (!data || data.length === 0) {
+            try {
+                const storedData = localStorage.getItem('siteTracker_lastData');
+                if (storedData) {
+                    data = JSON.parse(storedData);
+                    console.log('📦 Loaded backup data from localStorage:', data.length, 'records');
+                }
+            } catch (e) {
+                console.log('No backup data available in localStorage');
+            }
+        }
+        
+        // Also check for data in table as fallback
+        const tableBody = document.querySelector('#dataTableBody');
         const rows = tableBody ? tableBody.querySelectorAll('tr:not(.no-data)') : [];
         
-        return {
+        const result = {
             data: data,
             rowCount: rows.length,
             hasValidData: data && data.length > 0
         };
+        
+        console.log('📊 Dashboard data check result:', {
+            dataLength: result.data.length,
+            hasValidData: result.hasValidData,
+            tableRows: result.rowCount
+        });
+        
+        return result;
     }
     
     // Format data for AI analysis
@@ -492,6 +517,24 @@ class AIConfigBridge {
         } else {
             return `✅ All ${data.length} sites have coordinate data`;
         }
+    }
+    
+    // Callback when data is updated
+    onDataUpdated() {
+        console.log('🔄 AI Configuration Bridge: Data updated, refreshing data access...');
+        
+        // Clear any cached data and re-read configuration
+        this.readCurrentConfig();
+        
+        // Update chat status to reflect new data availability
+        this.updateChatStatus();
+        
+        // Log current data status
+        const currentData = this.getCurrentDashboardData();
+        console.log('📊 AI Bridge data status after update:', {
+            hasData: currentData.hasValidData,
+            recordCount: currentData.hasValidData ? currentData.data.length : 0
+        });
     }
 }
 

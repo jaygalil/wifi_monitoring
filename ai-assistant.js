@@ -549,6 +549,13 @@ class AIAssistant {
     updateData(data) {
         this.currentData = data;
         console.log('AI Assistant updated with', data.length, 'records');
+        
+        // Also store in localStorage for persistence
+        try {
+            localStorage.setItem('siteTracker_aiData', JSON.stringify(data));
+        } catch (e) {
+            console.warn('Failed to store AI data in localStorage');
+        }
     }
 
     // Send a message to the AI
@@ -607,14 +614,44 @@ class AIAssistant {
         }
     }
 
+    // Get current data with fallbacks
+    getCurrentData() {
+        // Try current data first
+        if (this.currentData && this.currentData.length > 0) {
+            return this.currentData;
+        }
+        
+        // Fallback to global variables
+        if (window.allData && window.allData.length > 0) {
+            this.currentData = window.allData;
+            return this.currentData;
+        }
+        
+        // Fallback to localStorage
+        try {
+            const storedData = localStorage.getItem('siteTracker_lastData') || localStorage.getItem('siteTracker_aiData');
+            if (storedData) {
+                const data = JSON.parse(storedData);
+                this.currentData = data;
+                console.log('📦 AI Assistant loaded data from localStorage:', data.length, 'records');
+                return data;
+            }
+        } catch (e) {
+            console.warn('Failed to load data from localStorage');
+        }
+        
+        return [];
+    }
+
     // Perform data analysis
     async performDataAnalysis(query) {
-        if (!this.currentData || this.currentData.length === 0) {
-            return "I don't have any data to analyze yet. Please load your site data first.";
+        const data = this.getCurrentData();
+        if (!data || data.length === 0) {
+            return "I don't have any data to analyze yet. Please load your site data first from the Google Sheets integration in the left panel.";
         }
 
-        const totalRecords = this.currentData.length;
-        const analysis = this.analyzeDataDistribution();
+        const totalRecords = data.length;
+        const analysis = this.analyzeDataDistribution(data);
         
         return `📊 **Data Analysis Results**\n\n` +
                `• **Total Records**: ${totalRecords}\n` +
@@ -626,11 +663,12 @@ class AIAssistant {
 
     // Generate insights
     async generateInsights() {
-        if (!this.currentData || this.currentData.length === 0) {
-            return "I need data to generate insights. Please load your site data first.";
+        const data = this.getCurrentData();
+        if (!data || data.length === 0) {
+            return "I need data to generate insights. Please load your site data first from the Google Sheets integration.";
         }
 
-        const insights = this.generateDataInsights();
+        const insights = this.generateDataInsights(data);
         return `💡 **Key Insights**\n\n${insights.join('\n\n')}`;
     }
 
@@ -837,13 +875,14 @@ class AIAssistant {
     }
 
     // Helper methods for data analysis
-    analyzeDataDistribution() {
+    analyzeDataDistribution(data = null) {
+        const dataToAnalyze = data || this.getCurrentData();
         const categories = {};
         const locations = new Set();
         let totalFields = 0;
         let filledFields = 0;
 
-        this.currentData.forEach(record => {
+        dataToAnalyze.forEach(record => {
             Object.keys(record).forEach(key => {
                 if (key !== '_originalIndex') {
                     totalFields++;
@@ -875,13 +914,14 @@ class AIAssistant {
         };
     }
 
-    generateDataInsights() {
+    generateDataInsights(data = null) {
+        const dataToAnalyze = data || this.getCurrentData();
         const insights = [];
         
-        if (this.currentData.length > 0) {
-            insights.push(`📈 You have ${this.currentData.length} total records in your dataset`);
+        if (dataToAnalyze.length > 0) {
+            insights.push(`📈 You have ${dataToAnalyze.length} total records in your dataset`);
             
-            const headers = Object.keys(this.currentData[0]).filter(key => key !== '_originalIndex');
+            const headers = Object.keys(dataToAnalyze[0]).filter(key => key !== '_originalIndex');
             insights.push(`📋 Your data contains ${headers.length} different fields/columns`);
             
             // Check for geographic data

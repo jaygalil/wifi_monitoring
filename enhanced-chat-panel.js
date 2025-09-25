@@ -37,6 +37,13 @@ class EnhancedChatPanel {
     this.applyDockClass();
     this.updatePanelWidth(this.panelWidth);
     if (this.isVisible) this.showChat(); else this.hideChat();
+    
+    // Listen for data loaded events
+    window.addEventListener('siteTrackerDataLoaded', (event) => {
+      console.log('🗨️ Enhanced Chat Panel received data loaded event:', event.detail.count, 'records');
+      this.onDataLoaded(event.detail);
+    });
+    
     console.log('✅ EnhancedChatPanel initialized');
   }
 
@@ -735,10 +742,25 @@ class EnhancedChatPanel {
       // Use AI Configuration Bridge if available
       if (window.makeAIRequest) {
         console.log('🤖 Using AI Configuration Bridge for request...');
-        response = await window.makeAIRequest(text, window.allData || []);
+        
+        // Get current data from various sources
+        const currentData = window.allData || window.filteredData || [];
+        console.log('📊 Sending data to AI:', {
+          dataLength: currentData.length,
+          hasData: currentData.length > 0
+        });
+        
+        response = await window.makeAIRequest(text, currentData);
       } else {
-        // Fallback response
-        response = `🤖 I understand you're asking about: "${text}". \n\nI can help with:\n• 📊 Data Analysis\n• 🗺️ Geographic Insights\n• 🔍 Issue Detection\n• ⚡ Optimization\n\n**Note**: Configure your AI provider in the left panel for enhanced responses.`;
+        console.log('⚠️ AI Configuration Bridge not available');
+        
+        // Check for local data and provide basic analysis
+        const currentData = window.allData || window.filteredData || [];
+        if (currentData.length > 0) {
+          response = `🤖 I can see you have ${currentData.length} sites loaded from your Google Sheets data!\n\n**Your question**: "${text}"\n\n**Basic Analysis Available**:\n• 📊 ${currentData.length} total records loaded\n• 🗺️ Geographic data available for mapping\n• 🔍 Site monitoring data ready for analysis\n\n**For AI-powered insights**: Configure OpenRouter or DeepSeek in the left panel to get detailed analysis about your ${currentData.length} sites including connectivity patterns, geographic insights, and optimization recommendations.`;
+        } else {
+          response = `🤖 I understand you're asking about: "${text}".\n\n**No data loaded yet** - Please load your Google Sheets data first using the configuration panel on the left.\n\nOnce loaded, I can help with:\n• 📊 Data Analysis of your sites\n• 🗺️ Geographic Insights\n• 🔍 Issue Detection\n• ⚡ Optimization Recommendations\n\n**Note**: Configure your AI provider in the left panel for enhanced AI-powered responses.`;
+        }
       }
       
       this.hideTypingIndicator();
@@ -866,6 +888,26 @@ class EnhancedChatPanel {
       list.innerHTML = '';
       this.addMessage('Chat cleared. How can I help you today?', 'ai');
     }
+  }
+  
+  // Handle data loaded event
+  onDataLoaded(dataInfo) {
+    console.log('📊 Enhanced Chat Panel: Processing data loaded event');
+    
+    // Update the welcome message to reflect loaded data
+    const welcomeMessage = this.panelEl.querySelector('.welcome-message .welcome-content');
+    if (welcomeMessage) {
+      const tipElement = welcomeMessage.querySelector('.welcome-tip');
+      if (tipElement) {
+        tipElement.innerHTML = `<strong>🚀 Data Loaded!</strong> I now have access to ${dataInfo.count} site records. Try: "Analyze my ${dataInfo.count} sites" or "What insights can you find?"`;
+        tipElement.style.color = '#10b981';
+      }
+    }
+    
+    // Add a notification message to chat
+    setTimeout(() => {
+      this.addMessage(`🚀 **Data Successfully Loaded!**\n\nI now have access to ${dataInfo.count} site records from your Google Sheets data.\n\n**Ready to analyze:**\n• Geographic distribution\n• Site status and performance\n• Technology breakdown\n• Coverage patterns\n\nWhat would you like me to analyze first?`, 'ai');
+    }, 1000);
   }
 }
 
