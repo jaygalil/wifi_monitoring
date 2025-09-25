@@ -916,8 +916,8 @@ const aiAssistant = new AIAssistant();
 // Make it available globally for dashboard integration
 window.aiAssistant = aiAssistant;
 
-// Integration hook for dashboard data updates
-if (typeof window.processSheetData === 'function') {
+// Integration hook for dashboard data updates (prevent duplicate wrapping)
+if (typeof window.processSheetData === 'function' && !window.processSheetData._aiWrapped) {
     const originalProcessSheetData = window.processSheetData;
     window.processSheetData = function(data) {
         originalProcessSheetData(data);
@@ -925,4 +925,6 @@ if (typeof window.processSheetData === 'function') {
             window.aiAssistant.updateData(window.allData);
         }
     };
+    // Mark as wrapped to prevent duplicate wrapping
+    window.processSheetData._aiWrapped = true;
 }

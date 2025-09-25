@@ -572,9 +572,11 @@ Continue?
     }
 }
 
-// Initialize auto-configuration
-const autoConfig = new AutoConfigLoader();
-window.autoConfig = autoConfig;
+// Initialize auto-configuration (prevent duplicate initialization)
+if (!window.autoConfig) {
+    const autoConfig = new AutoConfigLoader();
+    window.autoConfig = autoConfig;
+}
 
 const additionalStyles = `
     <style>

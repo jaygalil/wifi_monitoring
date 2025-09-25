@@ -3,543 +3,580 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Configuration - Site Tracker</title>
+    <title>Site Tracker - Configuration</title>
     
-    <!-- External CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/css/bootstrap.min.css" />
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.3s ease-out',
+                        'pulse-slow': 'pulse 3s infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(100%)' },
+                            '100%': { transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
     <style>
-        :root {
-            --primary-color: #3b82f6;
-            --primary-hover: #2563eb;
-            --primary-light: #dbeafe;
-            --secondary-color: #6b7280;
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
-            --danger-color: #ef4444;
-            --info-color: #06b6d4;
-            --gray-50: #f9fafb;
-            --gray-100: #f3f4f6;
-            --gray-200: #e5e7eb;
-            --gray-300: #d1d5db;
-            --gray-400: #9ca3af;
-            --gray-500: #6b7280;
-            --gray-600: #4b5563;
-            --gray-700: #374151;
-            --gray-800: #1f2937;
-            --gray-900: #111827;
-            --bg-primary: #ffffff;
-            --bg-secondary: #f8fafc;
-            --bg-tertiary: #f1f5f9;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --radius-sm: 0.375rem;
-            --radius-md: 0.5rem;
-            --radius-lg: 0.75rem;
-            --radius-xl: 1rem;
-            --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-normal: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--gray-50) 100%);
-            color: var(--gray-800);
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
         }
-
-        .navbar {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--gray-200);
-            box-shadow: var(--shadow-sm);
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
-
-        .navbar-brand {
-            font-weight: 700;
-            color: var(--primary-color) !important;
+        
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
-        .config-container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 1rem;
+        
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
-
-        .config-card {
-            background: var(--bg-primary);
-            border-radius: var(--radius-xl);
-            box-shadow: var(--shadow-lg);
-            border: 1px solid var(--gray-200);
-            overflow: hidden;
-            margin-bottom: 2rem;
+        
+        .input-focus {
+            transition: all 0.2s ease-in-out;
         }
-
-        .config-header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
-            color: white;
-            padding: 2rem;
-            text-align: center;
-        }
-
-        .config-header h1 {
-            margin: 0;
-            font-weight: 700;
-            font-size: 2rem;
-        }
-
-        .config-header p {
-            margin: 0.5rem 0 0 0;
-            opacity: 0.9;
-        }
-
-        .config-body {
-            padding: 2rem;
-        }
-
-        .section-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--gray-800);
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .form-label {
-            font-weight: 500;
-            color: var(--gray-700);
-            margin-bottom: 0.5rem;
-        }
-
-        .form-control {
-            border: 1px solid var(--gray-300);
-            border-radius: var(--radius-md);
-            padding: 0.75rem 1rem;
-            transition: var(--transition-fast);
-        }
-
-        .form-control:focus {
-            border-color: var(--primary-color);
+        
+        .input-focus:focus {
+            transform: scale(1.02);
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
-
-        .btn-primary {
-            background: var(--primary-color);
-            border-color: var(--primary-color);
-            border-radius: var(--radius-md);
-            padding: 0.75rem 2rem;
-            font-weight: 500;
-            transition: var(--transition-fast);
+        
+        .btn-gradient {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            transition: all 0.3s ease;
         }
-
-        .btn-primary:hover {
-            background: var(--primary-hover);
-            border-color: var(--primary-hover);
+        
+        .btn-gradient:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
             transform: translateY(-1px);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
         }
-
-        .btn-outline-secondary {
-            border-radius: var(--radius-md);
-            padding: 0.75rem 1.5rem;
-            font-weight: 500;
-            transition: var(--transition-fast);
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
+        
         .stats-card {
-            background: var(--bg-primary);
-            border: 1px solid var(--gray-200);
-            border-radius: var(--radius-lg);
-            padding: 1.5rem;
-            text-align: center;
-            box-shadow: var(--shadow-sm);
-            transition: var(--transition-fast);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
+            backdrop-filter: blur(10px);
         }
-
-        .stats-card:hover {
-            box-shadow: var(--shadow-md);
-            transform: translateY(-2px);
+        
+        .loading-spinner {
+            animation: spin 1s linear infinite;
         }
-
-        .stats-number {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin: 0.5rem 0;
-        }
-
-        .stats-label {
-            color: var(--gray-600);
-            font-size: 0.875rem;
-            margin: 0;
-        }
-
-        .filter-section {
-            background: var(--gray-50);
-            border-radius: var(--radius-lg);
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .filter-group-enhanced {
-            margin-bottom: 1rem;
-        }
-
-        .filter-label {
-            font-weight: 500;
-            color: var(--gray-700);
-            margin-bottom: 0.5rem;
-            display: block;
-        }
-
-        .multi-select-container {
-            position: relative;
-        }
-
-        .multi-select-dropdown {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 1px solid var(--gray-300);
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-lg);
-            max-height: 200px;
-            overflow-y: auto;
-            z-index: 1000;
-            display: none;
-        }
-
-        .multi-select-dropdown.show {
-            display: block;
-        }
-
-        .dropdown-item {
-            padding: 0.5rem 1rem;
-            cursor: pointer;
-            transition: var(--transition-fast);
-        }
-
-        .dropdown-item:hover {
-            background: var(--gray-100);
-        }
-
-        .dropdown-item.selected {
-            background: var(--primary-light);
-            color: var(--primary-color);
-        }
-
-        .back-button {
-            position: fixed;
-            top: 1rem;
-            left: 1rem;
-            z-index: 1000;
-        }
-
-        @media (max-width: 768px) {
-            .config-container {
-                margin: 1rem auto;
-                padding: 0 0.5rem;
-            }
-
-            .config-body {
-                padding: 1.5rem;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
-<body>
-    <!-- Back Button -->
-    <a href="index.html" class="btn btn-outline-primary back-button">
-        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
-    </a>
-
+<body class="bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen font-inter">
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="index.html">
-                <i class="fas fa-map-marked-alt me-2"></i>Site Tracker
-            </a>
-            <span class="navbar-text">
-                <i class="fas fa-cog me-2"></i>Configuration
-            </span>
+    <nav class="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4">
+                    <div class="flex-shrink-0">
+                        <h1 class="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                            <i class="fas fa-map-marker-alt mr-2"></i>Site Tracker
+                        </h1>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="index.html" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                        <i class="fas fa-dashboard mr-2"></i>Dashboard
+                    </a>
+                    <span class="text-blue-600 px-3 py-2 rounded-md text-sm font-medium bg-blue-50">
+                        <i class="fas fa-cog mr-2"></i>Configuration
+                    </span>
+                </div>
+            </div>
         </div>
     </nav>
 
-    <div class="config-container">
-        <!-- Main Configuration Card -->
-        <div class="config-card">
-            <div class="config-header">
-                <h1><i class="fas fa-cog me-3"></i>API Configuration</h1>
-                <p>Configure your Google Sheets API settings and data filters</p>
+    <!-- Main Content -->
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="text-center mb-8 animate-fade-in">
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">API Configuration</h1>
+            <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                Configure your Google Sheets API settings to connect and manage your site data
+            </p>
+        </div>
+
+        <!-- Configuration Card -->
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden mb-8 card-hover animate-fade-in">
+            <!-- Card Header -->
+            <div class="gradient-bg px-8 py-6">
+                <div class="flex items-center justify-center text-white">
+                    <i class="fas fa-key text-2xl mr-3"></i>
+                    <h2 class="text-2xl font-bold">API Configuration</h2>
+                </div>
             </div>
-            
-            <div class="config-body">
-                <!-- API Configuration Section -->
-                <div class="section-title">
-                    <i class="fas fa-key text-warning"></i>
-                    Google Sheets API Settings
-                </div>
-                
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="apiKey" class="form-label">
-                            <i class="fas fa-key text-warning me-2"></i>API Key
-                        </label>
-                        <input type="password" class="form-control" id="apiKey" placeholder="Enter your Google Sheets API key">
-                    </div>
-                    
-                    <div class="col-md-6 mb-3">
-                        <label for="sheetId" class="form-label">
-                            <i class="fas fa-table text-success me-2"></i>Sheet ID
-                        </label>
-                        <input type="text" class="form-control" id="sheetId" placeholder="Google Sheet ID from URL">
-                    </div>
-                </div>
-                
-                <div class="row">
-                    <div class="col-md-6 mb-4">
-                        <label for="sheetRange" class="form-label">
-                            <i class="fas fa-crop text-info me-2"></i>Data Range
-                        </label>
-                        <input type="text" class="form-control" id="sheetRange" value="Sheet1!A:Z" placeholder="e.g., Sheet1!A:H">
-                    </div>
-                    
-                    <div class="col-md-6 mb-4 d-flex align-items-end">
-                        <button class="btn btn-primary w-100" onclick="loadSheetData()">
-                            <i class="fas fa-cloud-download-alt me-2"></i>Load Sheet Data
-                        </button>
-                    </div>
-                </div>
 
-                <!-- Statistics Section -->
-                <div class="section-title">
-                    <i class="fas fa-chart-bar text-primary"></i>
-                    Data Statistics
-                </div>
-                
-                <div class="stats-grid">
-                    <div class="stats-card">
-                        <i class="fas fa-database text-primary fa-2x mb-2"></i>
-                        <div class="stats-number" id="totalRecords">0</div>
-                        <div class="stats-label">Total Records</div>
+            <!-- Card Body -->
+            <div class="p-8">
+                <form id="configForm" class="space-y-6">
+                    <!-- API Key Section -->
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-2 mb-4">
+                            <i class="fas fa-shield-alt text-blue-600"></i>
+                            <h3 class="text-lg font-semibold text-gray-900">Google Sheets API Key</h3>
+                        </div>
+                        
+                        <div>
+                            <label for="apiKey" class="block text-sm font-medium text-gray-700 mb-2">
+                                API Key <span class="text-red-500">*</span>
+                            </label>
+                            <input 
+                                type="text" 
+                                id="apiKey" 
+                                name="apiKey" 
+                                value="AIzaSyAcStfXXwdeh2d_MyFOorLzOcvplHAWjZY"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 input-focus"
+                                placeholder="Enter your Google Sheets API key"
+                                required
+                            >
+                            <p class="mt-2 text-sm text-gray-500">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                Get your API key from the Google Cloud Console
+                            </p>
+                        </div>
                     </div>
-                    <div class="stats-card">
-                        <i class="fas fa-map-marker-alt text-success fa-2x mb-2"></i>
-                        <div class="stats-number" id="mappedRecords">0</div>
-                        <div class="stats-label">Mapped Locations</div>
-                    </div>
-                    <div class="stats-card">
-                        <i class="fas fa-filter text-info fa-2x mb-2"></i>
-                        <div class="stats-number" id="filteredRecords">0</div>
-                        <div class="stats-label">Filtered Results</div>
-                    </div>
-                    <div class="stats-card">
-                        <i class="fas fa-clock text-warning fa-2x mb-2"></i>
-                        <div class="stats-number" id="lastUpdated">Never</div>
-                        <div class="stats-label">Last Updated</div>
-                    </div>
-                </div>
 
-                <!-- Advanced Filters Section -->
-                <div class="section-title">
-                    <i class="fas fa-filter text-info"></i>
-                    Advanced Filters
-                </div>
-                
-                <div class="filter-section">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="filter-group-enhanced">
-                                <label class="filter-label">Search</label>
-                                <input type="text" class="form-control" id="searchInputEnhanced" placeholder="Search across all fields..." oninput="applyEnhancedFilters()">
+                    <!-- Sheet Configuration Section -->
+                    <div class="space-y-4 pt-6 border-t border-gray-200">
+                        <div class="flex items-center space-x-2 mb-4">
+                            <i class="fas fa-table text-green-600"></i>
+                            <h3 class="text-lg font-semibold text-gray-900">Sheet Configuration</h3>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="sheetId" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Sheet ID <span class="text-red-500">*</span>
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="sheetId" 
+                                    name="sheetId" 
+                                    value="1aNEX-jyWYXXPL-RjJ-18-XC3iad3GvxFHyrMajgjHUA"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 input-focus"
+                                    placeholder="Enter Google Sheet ID"
+                                    required
+                                >
                             </div>
                             
-                            <div class="filter-group-enhanced">
-                                <label class="filter-label">Categories</label>
-                                <div class="multi-select-container">
-                                    <input type="text" class="form-control" id="categoryMultiSelect" placeholder="Select categories..." readonly onclick="toggleMultiSelect('category')">
-                                    <div class="multi-select-dropdown" id="categoryDropdown"></div>
-                                </div>
-                            </div>
-                            
-                            <div class="filter-group-enhanced">
-                                <label class="filter-label">Status</label>
-                                <div class="multi-select-container">
-                                    <input type="text" class="form-control" id="statusMultiSelect" placeholder="Select statuses..." readonly onclick="toggleMultiSelect('status')">
-                                    <div class="multi-select-dropdown" id="statusDropdown"></div>
-                                </div>
+                            <div>
+                                <label for="sheetRange" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Sheet Range
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="sheetRange" 
+                                    name="sheetRange" 
+                                    value="Sheet1!A:Z"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 input-focus"
+                                    placeholder="e.g., Sheet1!A:Z"
+                                >
                             </div>
                         </div>
                         
-                        <div class="col-md-6">
-                            <div class="filter-group-enhanced">
-                                <label class="filter-label">Province</label>
-                                <div class="multi-select-container">
-                                    <input type="text" class="form-control" id="provinceMultiSelect" placeholder="Select provinces..." readonly onclick="toggleMultiSelect('province')">
-                                    <div class="multi-select-dropdown" id="provinceDropdown"></div>
-                                </div>
-                            </div>
+                        <p class="text-sm text-gray-500">
+                            <i class="fas fa-lightbulb mr-1"></i>
+                            The Sheet ID can be found in your Google Sheets URL between '/d/' and '/edit'
+                        </p>
+                    </div>
 
-                            <div class="filter-group-enhanced">
-                                <label class="filter-label">District</label>
-                                <div class="multi-select-container">
-                                    <input type="text" class="form-control" id="districtMultiSelect" placeholder="Select districts..." readonly onclick="toggleMultiSelect('district')">
-                                    <div class="multi-select-dropdown" id="districtDropdown"></div>
-                                </div>
-                            </div>
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col sm:flex-row gap-4 pt-6">
+                        <button 
+                            type="button" 
+                            id="loadDataBtn" 
+                            class="flex-1 btn-gradient text-white px-6 py-3 rounded-lg font-medium hover:shadow-lg transition-all duration-300 flex items-center justify-center"
+                        >
+                            <i class="fas fa-download mr-2"></i>
+                            Load Sheet Data
+                        </button>
+                        
+                        <button 
+                            type="button" 
+                            id="testConnectionBtn" 
+                            class="flex-1 bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors flex items-center justify-center"
+                        >
+                            <i class="fas fa-plug mr-2"></i>
+                            Test Connection
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
-                            <div class="filter-group-enhanced">
-                                <label class="filter-label">LGU</label>
-                                <div class="multi-select-container">
-                                    <input type="text" class="form-control" id="lguMultiSelect" placeholder="Select LGUs..." readonly onclick="toggleMultiSelect('lgu')">
-                                    <div class="multi-select-dropdown" id="lguDropdown"></div>
-                                </div>
-                            </div>
+        <!-- Data Statistics -->
+        <div id="dataStats" class="hidden animate-fade-in">
+            <div class="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden mb-8 card-hover">
+                <div class="bg-gradient-to-r from-green-500 to-emerald-600 px-8 py-6">
+                    <div class="flex items-center justify-center text-white">
+                        <i class="fas fa-chart-bar text-2xl mr-3"></i>
+                        <h2 class="text-2xl font-bold">Data Statistics</h2>
+                    </div>
+                </div>
+                
+                <div class="p-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="statsContainer">
+                        <!-- Stats will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Advanced Filters -->
+        <div id="advancedFilters" class="hidden animate-fade-in">
+            <div class="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden card-hover">
+                <div class="bg-gradient-to-r from-purple-500 to-indigo-600 px-8 py-6">
+                    <div class="flex items-center justify-center text-white">
+                        <i class="fas fa-filter text-2xl mr-3"></i>
+                        <h2 class="text-2xl font-bold">Advanced Filters</h2>
+                    </div>
+                </div>
+                
+                <div class="p-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="filter-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Site Type</label>
+                            <select id="siteTypeFilter" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">All Types</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                            <select id="statusFilter" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">All Statuses</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Region</label>
+                            <select id="regionFilter" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">All Regions</option>
+                            </select>
                         </div>
                     </div>
                     
-                    <div class="row mt-3">
-                        <div class="col-md-6">
-                            <div class="filter-group-enhanced">
-                                <label class="filter-label">Date From</label>
-                                <input type="date" class="form-control" id="dateFromFilter" onchange="applyEnhancedFilters()">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="filter-group-enhanced">
-                                <label class="filter-label">Date To</label>
-                                <input type="date" class="form-control" id="dateToFilter" onchange="applyEnhancedFilters()">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="d-flex gap-2 mt-3">
-                        <button class="btn btn-primary" onclick="applyEnhancedFilters()">
-                            <i class="fas fa-filter me-2"></i>Apply Filters
+                    <div class="mt-6 flex gap-4">
+                        <button id="applyFiltersBtn" class="btn-gradient text-white px-6 py-3 rounded-lg font-medium hover:shadow-lg transition-all duration-300">
+                            <i class="fas fa-check mr-2"></i>Apply Filters
                         </button>
-                        <button class="btn btn-outline-secondary" onclick="clearFilters()">
-                            <i class="fas fa-undo me-2"></i>Clear All
-                        </button>
-                        <button class="btn btn-outline-primary" onclick="showReportPreview()">
-                            <i class="fas fa-eye me-2"></i>Preview Report
+                        <button id="clearFiltersBtn" class="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors">
+                            <i class="fas fa-times mr-2"></i>Clear All
                         </button>
                     </div>
                 </div>
-
-                <!-- Export Controls -->
-                <div class="section-title">
-                    <i class="fas fa-download text-success"></i>
-                    Export Options
-                </div>
-                
-                <div class="row">
-                    <div class="col-md-4 mb-2">
-                        <button class="btn btn-outline-primary w-100" onclick="exportToCSV()">
-                            <i class="fas fa-file-csv me-2"></i>Export CSV
-                        </button>
-                    </div>
-                    <div class="col-md-4 mb-2">
-                        <button class="btn btn-outline-primary w-100" onclick="exportToPDF()">
-                            <i class="fas fa-file-pdf me-2"></i>Export PDF
-                        </button>
-                    </div>
-                    <div class="col-md-4 mb-2">
-                        <button class="btn btn-outline-primary w-100" onclick="exportToExcel()">
-                            <i class="fas fa-file-excel me-2"></i>Export Excel
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Sample Data -->
-                <div class="section-title mt-4">
-                    <i class="fas fa-play text-success"></i>
-                    Sample Data
-                </div>
-                
-                <button class="btn btn-outline-success w-100" onclick="loadSampleData()">
-                    <i class="fas fa-play me-2"></i>Load Sample Data for Testing
-                </button>
             </div>
         </div>
     </div>
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="toast-manager.js"></script>
-    
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-8 flex flex-col items-center space-y-4">
+            <div class="loading-spinner w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full"></div>
+            <p class="text-gray-700 font-medium">Loading data...</p>
+        </div>
+    </div>
+
     <script>
-        // Include necessary functions from main app
-        // This will be populated with the required functions
-        
-        // Placeholder functions - these should be imported from the main app
-        function loadSheetData() {
-            console.log('Loading sheet data...');
-            // Implementation will be added
+        // Configuration management
+        let currentConfig = {
+            apiKey: '',
+            sheetId: '',
+            sheetRange: 'Sheet1!A:Z'
+        };
+
+        let allData = [];
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSavedConfig();
+            setupEventListeners();
+        });
+
+        function loadSavedConfig() {
+            const savedConfig = localStorage.getItem('siteTrackerConfig');
+            if (savedConfig) {
+                currentConfig = JSON.parse(savedConfig);
+                document.getElementById('apiKey').value = currentConfig.apiKey || '';
+                document.getElementById('sheetId').value = currentConfig.sheetId || '';
+                document.getElementById('sheetRange').value = currentConfig.sheetRange || 'Sheet1!A:Z';
+            }
         }
-        
-        function applyEnhancedFilters() {
-            console.log('Applying filters...');
-            // Implementation will be added
+
+        function saveConfig() {
+            currentConfig = {
+                apiKey: document.getElementById('apiKey').value,
+                sheetId: document.getElementById('sheetId').value,
+                sheetRange: document.getElementById('sheetRange').value
+            };
+            localStorage.setItem('siteTrackerConfig', JSON.stringify(currentConfig));
         }
-        
+
+        function setupEventListeners() {
+            document.getElementById('loadDataBtn').addEventListener('click', loadSheetData);
+            document.getElementById('testConnectionBtn').addEventListener('click', testConnection);
+            document.getElementById('applyFiltersBtn').addEventListener('click', applyFilters);
+            document.getElementById('clearFiltersBtn').addEventListener('click', clearFilters);
+        }
+
+        async function testConnection() {
+            saveConfig();
+            showLoading(true);
+            
+            try {
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${currentConfig.sheetId}?key=${currentConfig.apiKey}`;
+                const response = await fetch(url);
+                
+                if (response.ok) {
+                    showToast('Connection successful!', 'success');
+                } else {
+                    throw new Error('Connection failed');
+                }
+            } catch (error) {
+                showToast('Connection failed. Please check your API key and Sheet ID.', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function loadSheetData() {
+            saveConfig();
+            showLoading(true);
+            
+            try {
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${currentConfig.sheetId}/values/${currentConfig.sheetRange}?key=${currentConfig.apiKey}`;
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+                
+                const data = await response.json();
+                allData = processSheetData(data.values);
+                
+                updateDataStats();
+                setupFilters();
+                showToast('Data loaded successfully!', 'success');
+                
+            } catch (error) {
+                showToast('Failed to load data. Please check your configuration.', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function processSheetData(values) {
+            if (!values || values.length < 2) return [];
+            
+            const headers = values[0];
+            const data = [];
+            
+            for (let i = 1; i < values.length; i++) {
+                const row = {};
+                headers.forEach((header, index) => {
+                    row[header] = values[i][index] || '';
+                });
+                data.push(row);
+            }
+            
+            return data;
+        }
+
+        function updateDataStats() {
+            const statsContainer = document.getElementById('statsContainer');
+            const dataStats = document.getElementById('dataStats');
+            
+            if (allData.length === 0) {
+                dataStats.classList.add('hidden');
+                return;
+            }
+            
+            const stats = calculateStats();
+            
+            statsContainer.innerHTML = `
+                <div class="stats-card p-6 rounded-xl text-center">
+                    <div class="text-3xl font-bold text-blue-600 mb-2">${stats.total}</div>
+                    <div class="text-sm text-gray-600">Total Sites</div>
+                </div>
+                <div class="stats-card p-6 rounded-xl text-center">
+                    <div class="text-3xl font-bold text-green-600 mb-2">${stats.active}</div>
+                    <div class="text-sm text-gray-600">Active Sites</div>
+                </div>
+                <div class="stats-card p-6 rounded-xl text-center">
+                    <div class="text-3xl font-bold text-yellow-600 mb-2">${stats.types}</div>
+                    <div class="text-sm text-gray-600">Site Types</div>
+                </div>
+                <div class="stats-card p-6 rounded-xl text-center">
+                    <div class="text-3xl font-bold text-purple-600 mb-2">${stats.regions}</div>
+                    <div class="text-sm text-gray-600">Regions</div>
+                </div>
+            `;
+            
+            dataStats.classList.remove('hidden');
+        }
+
+        function calculateStats() {
+            const total = allData.length;
+            const active = allData.filter(site => site.Status && site.Status.toLowerCase() === 'active').length;
+            const types = new Set(allData.map(site => site.Type || site['Site Type'] || '').filter(Boolean)).size;
+            const regions = new Set(allData.map(site => site.Region || site.Province || '').filter(Boolean)).size;
+            
+            return { total, active, types, regions };
+        }
+
+        function setupFilters() {
+            const advancedFilters = document.getElementById('advancedFilters');
+            
+            // Populate filter options
+            populateFilterOptions();
+            
+            advancedFilters.classList.remove('hidden');
+        }
+
+        function populateFilterOptions() {
+            const siteTypes = new Set(allData.map(site => site.Type || site['Site Type'] || '').filter(Boolean));
+            const statuses = new Set(allData.map(site => site.Status || '').filter(Boolean));
+            const regions = new Set(allData.map(site => site.Region || site.Province || '').filter(Boolean));
+            
+            populateSelect('siteTypeFilter', siteTypes);
+            populateSelect('statusFilter', statuses);
+            populateSelect('regionFilter', regions);
+        }
+
+        function populateSelect(selectId, options) {
+            const select = document.getElementById(selectId);
+            const currentValue = select.value;
+            
+            // Clear existing options except the first one
+            while (select.children.length > 1) {
+                select.removeChild(select.lastChild);
+            }
+            
+            // Add new options
+            Array.from(options).sort().forEach(option => {
+                const optionElement = document.createElement('option');
+                optionElement.value = option;
+                optionElement.textContent = option;
+                select.appendChild(optionElement);
+            });
+            
+            select.value = currentValue;
+        }
+
+        function applyFilters() {
+            const filters = {
+                siteType: document.getElementById('siteTypeFilter').value,
+                status: document.getElementById('statusFilter').value,
+                region: document.getElementById('regionFilter').value
+            };
+            
+            localStorage.setItem('siteTrackerFilters', JSON.stringify(filters));
+            showToast('Filters applied successfully!', 'success');
+        }
+
         function clearFilters() {
-            console.log('Clearing filters...');
-            // Implementation will be added
+            document.getElementById('siteTypeFilter').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('regionFilter').value = '';
+            
+            localStorage.removeItem('siteTrackerFilters');
+            showToast('Filters cleared!', 'info');
         }
-        
-        function showReportPreview() {
-            console.log('Showing report preview...');
-            // Implementation will be added
+
+        function showLoading(show) {
+            const overlay = document.getElementById('loadingOverlay');
+            if (show) {
+                overlay.classList.remove('hidden');
+            } else {
+                overlay.classList.add('hidden');
+            }
         }
-        
-        function exportToCSV() {
-            console.log('Exporting to CSV...');
-            // Implementation will be added
-        }
-        
-        function exportToPDF() {
-            console.log('Exporting to PDF...');
-            // Implementation will be added
-        }
-        
-        function exportToExcel() {
-            console.log('Exporting to Excel...');
-            // Implementation will be added
-        }
-        
-        function loadSampleData() {
-            console.log('Loading sample data...');
-            // Implementation will be added
-        }
-        
-        function toggleMultiSelect(type) {
-            console.log('Toggling multi-select for:', type);
-            // Implementation will be added
+
+        function showToast(message, type = 'info') {
+            const toastContainer = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            const bgColor = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                warning: 'bg-yellow-500',
+                info: 'bg-blue-500'
+            }[type] || 'bg-blue-500';
+            
+            const icon = {
+                success: 'fas fa-check-circle',
+                error: 'fas fa-exclamation-circle',
+                warning: 'fas fa-exclamation-triangle',
+                info: 'fas fa-info-circle'
+            }[type] || 'fas fa-info-circle';
+            
+            toast.className = `${bgColor} text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3 animate-slide-up`;
+            toast.innerHTML = `
+                <i class="${icon}"></i>
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.remove();
+                }
+            }, 5000);
         }
     </script>
 </body>
