@@ -9,6 +9,7 @@ class EnhancedChatPanel {
     this.minWidth = 280;
     this.maxWidth = 900;
     this.isResizing = false;
+    this.isDragging = false;
 
     // Docking and auto-hide
     this.dockSide = 'right'; // default mount to RIGHT side
@@ -147,7 +148,7 @@ class EnhancedChatPanel {
         background:rgba(255,255,255,0.98); 
         backdrop-filter:blur(20px); 
         -webkit-backdrop-filter:blur(20px); 
-        z-index:1050; 
+        z-index:10050; 
         display:flex; 
         flex-direction:column; 
         transition:left .3s cubic-bezier(.4,0,.2,1), right .3s cubic-bezier(.4,0,.2,1); 
@@ -181,6 +182,7 @@ class EnhancedChatPanel {
         align-items:center; 
         user-select:none; 
         flex-shrink:0; 
+        cursor:move; 
       }
       .chat-title { 
         font-weight:600; 
@@ -224,7 +226,7 @@ class EnhancedChatPanel {
         height:100%; 
         cursor:ew-resize; 
         background:transparent; 
-        z-index:10; 
+        z-index:10060; 
         display:flex; 
         align-items:center; 
         justify-content:center; 
@@ -427,7 +429,7 @@ class EnhancedChatPanel {
           width:100vw; 
           top:0; 
           height:100vh; 
-          z-index:1060; 
+          z-index:10060; 
         } 
         .enhanced-chat-panel.dock-right { 
           right:-100vw; 
@@ -539,21 +541,32 @@ class EnhancedChatPanel {
     this.panelEl.querySelector('#btnDock').addEventListener('click', () => this.toggleDockSide());
     this.autoHideBtn.addEventListener('click', () => this.toggleAutoHide());
 
-    // Resize
-    this.resizeHandleEl.addEventListener('mousedown', (e) => {
-      e.preventDefault();
-      this.isResizing = true;
-      document.body.style.cursor = 'ew-resize';
+    // Drag functionality for header
+    const header = this.panelEl.querySelector('.chat-header');
+    header.addEventListener('mousedown', (e) => {
+      if (e.target.tagName === 'BUTTON' || e.target.tagName === 'I') return;
+      this.startDrag(e);
     });
     document.addEventListener('mousemove', (e) => {
-      if (!this.isResizing) return;
-      this.handleResize(e);
+      if (this.isDragging) this.handleDrag(e);
+      if (this.isResizing) this.handleResize(e);
     });
     document.addEventListener('mouseup', () => {
       if (this.isResizing) {
         this.isResizing = false;
         document.body.style.cursor = '';
       }
+      if (this.isDragging) {
+        this.isDragging = false;
+        document.body.style.cursor = '';
+      }
+    });
+
+    // Resize
+    this.resizeHandleEl.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      this.isResizing = true;
+      document.body.style.cursor = 'ew-resize';
     });
 
     // Suggestions
@@ -595,6 +608,42 @@ class EnhancedChatPanel {
     }
     newWidth = Math.max(this.minWidth, Math.min(this.maxWidth, newWidth));
     this.updatePanelWidth(newWidth);
+  }
+
+  startDrag(e) {
+    this.isDragging = true;
+    this.dragStartX = e.clientX;
+    this.dragStartY = e.clientY;
+    this.dragStartLeft = parseInt(this.panelEl.style.left) || 0;
+    this.dragStartTop = parseInt(this.panelEl.style.top) || 0;
+    this.panelEl.style.transition = 'none';
+    document.body.style.cursor = 'move';
+    e.preventDefault();
+  }
+
+  handleDrag(e) {
+    if (!this.isDragging) return;
+    
+    const deltaX = e.clientX - this.dragStartX;
+    const deltaY = e.clientY - this.dragStartY;
+    
+    let newLeft = this.dragStartLeft + deltaX;
+    let newTop = this.dragStartTop + deltaY;
+    
+    // Keep panel within viewport bounds
+    const maxX = window.innerWidth - this.panelEl.offsetWidth;
+    const maxY = window.innerHeight - this.panelEl.offsetHeight;
+    
+    newLeft = Math.max(0, Math.min(newLeft, maxX));
+    newTop = Math.max(0, Math.min(newTop, maxY));
+    
+    this.panelEl.style.left = newLeft + 'px';
+    this.panelEl.style.top = newTop + 'px';
+    this.panelEl.style.right = 'auto';
+    this.panelEl.style.bottom = 'auto';
+    
+    // Remove dock classes when dragging
+    this.panelEl.classList.remove('dock-left', 'dock-right');
   }
 
   updatePanelWidth(w) {
@@ -683,11 +732,11 @@ class EnhancedChatPanel {
   showChat() {
     this.isVisible = true;
     this.panelEl.classList.add('visible');
+    this.panelEl.style.zIndex = '9999'; // Ensure panel is always in front
     if (this.dockSide === 'right') { this.panelEl.style.right = '0'; this.panelEl.style.left = 'auto'; }
     else { this.panelEl.style.left = '0'; this.panelEl.style.right = 'auto'; }
     this.focusInput();
     if (this.autoHideEnabled) this.startAutoHideTimer();
-    
     // Adjust main content margin
     const mainContent = document.querySelector('.main-content');
     if (mainContent) {

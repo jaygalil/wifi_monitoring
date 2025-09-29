@@ -51,7 +51,7 @@
                         <h1 class="text-xl font-semibold text-gray-900">Site Tracker</h1>
                     </div>
                     <div class="flex items-center space-x-4">
-                        <button onclick="if(window.enhancedChat) window.enhancedChat.toggleChat()" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2">
+                        <button onclick="toggleAIChat()" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2">
                             <i class="fas fa-robot"></i>
                             <span>AI Assistant</span>
                         </button>
@@ -65,15 +65,20 @@
 
         <!-- Main Content -->
         <main class="flex-1">
-            <!-- Map Container -->
-            <div class="relative">
-                <div id="map" class="w-full h-96 lg:h-[500px]"></div>
-            </div>
-
-            <!-- Content Sections -->
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                <!-- Stats Cards -->
-                <div id="locationDetails" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+            <!-- Top Section: Map (80% right) and AI Chat (20% left) -->
+            <div class="flex flex-col lg:flex-row w-full">
+                <!-- AI Chat Container (20% width) -->
+                <div class="w-full lg:w-1/5 p-4 bg-gray-50 border-r border-gray-200">
+                    <div class="bg-white rounded-lg shadow p-4 mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-3">AI Assistant</h3>
+                        <button onclick="toggleAIChat()" class="w-full bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center space-x-2">
+                            <i class="fas fa-robot"></i>
+                            <span>Open Chat</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Stats Cards -->
+                    <div id="locationDetails" class="grid grid-cols-1 gap-3">
                     <div class="bg-white rounded-lg shadow p-4">
                         <div class="text-sm font-medium text-gray-500">Total Sites</div>
                         <div id="totalSites" class="text-2xl font-bold text-gray-900">0</div>
@@ -95,7 +100,150 @@
                         <div id="statusOffline" class="text-2xl font-bold text-red-600">0</div>
                     </div>
                 </div>
+                </div>
+                
+                <!-- Map Container (80% width) -->
+                <div class="w-full lg:w-4/5">
+                    <div class="relative">
+                        <div id="map" class="w-full h-96 lg:h-[600px]"></div>
+                        
+                        <!-- Map Legend -->
+                        <div id="mapLegend" class="absolute bottom-4 left-4 bg-white bg-opacity-95 backdrop-filter backdrop-blur-sm border border-gray-200 rounded-lg shadow-lg p-4 z-[1000] min-w-[200px]" style="display: block !important; visibility: visible !important; opacity: 1 !important; border: 2px solid red !important;">
+                            <div class="mb-3">
+                                <h3 class="text-sm font-semibold text-gray-800">🗺️ Map Legend</h3>
+                            </div>
+                            <div class="space-y-2 text-xs">
+                                <div class="flex items-center">
+                                    <div class="w-3 h-3 rounded-full bg-green-600 border border-gray-800 mr-2"></div>
+                                    <span class="text-gray-700">Online Sites</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-3 h-3 rounded-full bg-yellow-600 border border-gray-800 mr-2"></div>
+                                    <span class="text-gray-700">Warning Status</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-3 h-3 rounded-full bg-red-600 border border-gray-800 mr-2"></div>
+                                    <span class="text-gray-700">Offline Sites</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-3 h-3 rounded-full bg-gray-600 border border-gray-800 mr-2"></div>
+                                    <span class="text-gray-700">Unknown Status</span>
+                                </div>
+                                <div class="border-t border-gray-200 pt-2 mt-2">
+                                    <div class="flex items-center text-gray-500">
+                                        <i class="fas fa-circle text-blue-500 text-xs mr-2"></i>
+                                        <span>Larger circles = higher priority</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
+            <!-- Full Width Table Section -->
+            <div class="w-full px-4 sm:px-6 lg:px-8 py-6">
+                <!-- Data Table -->
+                <div class="bg-white rounded-lg shadow">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-lg font-medium text-gray-900">Site Data</h2>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <div id="tableLoading" class="hidden p-4 text-center">
+                            <i class="fas fa-spinner fa-spin text-gray-400"></i>
+                            <span class="ml-2 text-gray-600">Loading data...</span>
+                        </div>
+                        <table id="dataTable" class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('name')">
+                                        <div class="flex items-center">
+                                            Site
+                                            <i class="fas fa-sort ml-1 text-gray-400"></i>
+                                        </div>
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('location')">
+                                        <div class="flex items-center">
+                                            Location
+                                            <i class="fas fa-sort ml-1 text-gray-400"></i>
+                                        </div>
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('status')">
+                                        <div class="flex items-center">
+                                            Status
+                                            <i class="fas fa-sort ml-1 text-gray-400"></i>
+                                        </div>
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('category')">
+                                        <div class="flex items-center">
+                                            Category
+                                            <i class="fas fa-sort ml-1 text-gray-400"></i>
+                                        </div>
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" onclick="sortTable('lastupdate')">
+                                        <div class="flex items-center">
+                                            Last Update
+                                            <i class="fas fa-sort ml-1 text-gray-400"></i>
+                                        </div>
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dataTableBody" class="bg-white divide-y divide-gray-200">
+                                <!-- Data will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Pagination Controls -->
+                    <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                        <div class="flex-1 flex justify-between sm:hidden">
+                            <button id="prevPageBtnMobile" onclick="previousPage()" disabled class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                Previous
+                            </button>
+                            <button id="nextPageBtnMobile" onclick="nextPage()" disabled class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                Next
+                            </button>
+                        </div>
+                        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                            <div>
+                                <p class="text-sm text-gray-700">
+                                    Showing
+                                    <span id="paginationStart" class="font-medium">0</span>
+                                    to
+                                    <span id="paginationEnd" class="font-medium">0</span>
+                                    of
+                                    <span id="paginationTotal" class="font-medium">0</span>
+                                    results
+                                </p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <label for="rowsPerPage" class="text-sm text-gray-700">Rows per page:</label>
+                                <select id="rowsPerPage" onchange="changeRowsPerPage()" class="border border-gray-300 rounded px-2 py-1 text-sm">
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px ml-4" aria-label="Pagination">
+                                    <button id="prevPageBtn" onclick="previousPage()" disabled class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </button>
+                                    <div id="pageNumbers" class="flex">
+                                        <!-- Page numbers will be populated here -->
+                                    </div>
+                                    <button id="nextPageBtn" onclick="nextPage()" disabled class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Full Width Table Section -->
+            <div class="w-full px-4 sm:px-6 lg:px-8 py-6">
                 <!-- Data Table -->
                 <div class="bg-white rounded-lg shadow">
                     <div class="px-6 py-4 border-b border-gray-200">
@@ -197,13 +345,107 @@
         </main>
     </div>
 
-    <!-- Enhanced Chat Panel will create the AI chat interface -->
-    <!-- Duplicate AI panels removed to prevent conflicts -->
+    <!-- Enhanced Resizable AI Assistant Panel -->
+    <div id="aiChatPanel" class="fixed top-16 right-4 w-96 h-96 bg-white rounded-lg shadow-xl border border-gray-200 z-50 hidden resize-panel" style="min-width: 320px; min-height: 400px; max-width: 800px; max-height: 600px;">
+        <!-- Resize Handles -->
+        <div class="resize-handle resize-handle-n"></div>
+        <div class="resize-handle resize-handle-s"></div>
+        <div class="resize-handle resize-handle-e"></div>
+        <div class="resize-handle resize-handle-w"></div>
+        <div class="resize-handle resize-handle-ne"></div>
+        <div class="resize-handle resize-handle-nw"></div>
+        <div class="resize-handle resize-handle-se"></div>
+        <div class="resize-handle resize-handle-sw"></div>
+        
+        <!-- Header (Draggable) -->
+        <div id="aiChatHeader" class="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-3 rounded-t-lg flex items-center justify-between cursor-move">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-robot"></i>
+                <span class="font-semibold">AI Assistant</span>
+                <span id="aiStatus" class="text-xs bg-green-500/20 text-green-100 px-2 py-1 rounded-full">Ready</span>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button onclick="minimizeAIChat()" class="text-white/70 hover:text-white p-1 rounded">
+                    <i class="fas fa-minus text-xs"></i>
+                </button>
+                <button onclick="maximizeAIChat()" class="text-white/70 hover:text-white p-1 rounded">
+                    <i class="fas fa-expand text-xs"></i>
+                </button>
+                <button onclick="closeAIChat()" class="text-white/70 hover:text-white p-1 rounded">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Quick Actions Bar -->
+        <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
+            <div class="flex flex-wrap gap-2">
+                <button onclick="sendQuickAIMessage('Analyze my site data')" class="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors">
+                    📊 Analyze Data
+                </button>
+                <button onclick="sendQuickAIMessage('Generate a summary report')" class="px-2 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors">
+                    📋 Summary Report
+                </button>
+                <button onclick="sendQuickAIMessage('Create PDF report of all sites')" class="px-2 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors">
+                    📄 PDF Report
+                </button>
+                <button onclick="sendQuickAIMessage('Export to Excel with analysis')" class="px-2 py-1 text-xs bg-emerald-100 text-emerald-700 rounded hover:bg-emerald-200 transition-colors">
+                    📊 Excel Export
+                </button>
+            </div>
+        </div>
+        
+        <!-- Chat Messages Container -->
+        <div id="aiChatMessages" class="flex-1 overflow-y-auto p-4 space-y-3" style="height: calc(100% - 140px);">
+            <div class="flex items-start space-x-2">
+                <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-robot text-white text-sm"></i>
+                </div>
+                <div class="bg-gradient-to-r from-gray-100 to-gray-50 rounded-lg p-3 max-w-xs">
+                    <p class="text-sm">👋 Hi! I'm your enhanced AI assistant. I can:</p>
+                    <ul class="text-xs mt-2 space-y-1">
+                        <li>🔍 Analyze your Philippines Region 2 telecom sites</li>
+                        <li>📊 Generate detailed reports (PDF & Excel)</li>
+                        <li>📈 Create data visualizations</li>
+                        <li>🎯 Provide actionable insights</li>
+                    </ul>
+                    <p class="text-xs mt-2 text-gray-600">Try asking: "Generate a PDF report" or "Create Excel analysis"</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Input Area -->
+        <div class="border-t bg-white p-4 rounded-b-lg">
+            <div class="flex space-x-2">
+                <input type="text" id="aiChatInput" placeholder="Ask me to analyze data or generate reports..." 
+                       class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500 text-sm"
+                       onkeypress="if(event.key==='Enter') sendEnhancedAIMessage()">
+                <button onclick="sendEnhancedAIMessage()" id="aiChatSendBtn" 
+                        class="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-200">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+            <div class="mt-2 flex justify-between items-center text-xs text-gray-500">
+                <span id="dataStatus">No data loaded</span>
+                <div class="flex items-center space-x-2">
+                    <span id="aiTokenCount">0 tokens used</span>
+                    <span>•</span>
+                    <span class="text-blue-600">🤖 Enhanced AI</span>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
+    
+    <!-- Report Generation Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     
     <!-- Configuration -->
     <script src="config.js"></script>
@@ -410,6 +652,11 @@
                         }
                     }));
                     console.log('🔊 Dispatched global data loaded event');
+                    
+                    // Update AI chat data status
+                    if (typeof updateAIDataStatus === 'function') {
+                        updateAIDataStatus();
+                    }
                 }, 1000);
                 
                 showToast('Data loaded successfully', 'success');
@@ -443,13 +690,15 @@
                 const statusFromColumnX = row[23]; // Column X (24th column, 0-indexed = 23) - STATUS
                 console.log(`Row ${i} status from column X: ${statusFromColumnX}`);
                 
-                // Map status values: UP = online, DOWN = offline
+                // Map status values: UP = online, DOWN = offline, keep original value for others
                 if (statusFromColumnX && statusFromColumnX.toUpperCase() === 'UP') {
                     item.status = 'online';
                 } else if (statusFromColumnX && statusFromColumnX.toUpperCase() === 'DOWN') {
                     item.status = 'offline';
+                } else if (statusFromColumnX && statusFromColumnX.trim() !== '') {
+                    item.status = statusFromColumnX; // Keep the actual status value
                 } else {
-                    item.status = 'unknown'; // For any other values or empty
+                    item.status = 'unknown'; // For empty values
                 }
                 
                 item.category = item.category || item.project || 'site';
@@ -555,19 +804,19 @@
             
             if (isNaN(lat) || isNaN(lng)) return null;
 
-            // Determine marker color based on status
-            let color = '#6b7280'; // gray
-            if (item.status === 'online') color = '#10b981'; // green
-            else if (item.status === 'warning') color = '#f59e0b'; // yellow
-            else if (item.status === 'offline') color = '#ef4444'; // red
+            // Determine marker color based on status - using darker colors
+            let color = '#4b5563'; // darker gray
+            if (item.status === 'online') color = '#059669'; // darker green
+            else if (item.status === 'warning') color = '#d97706'; // darker yellow/orange
+            else if (item.status === 'offline') color = '#dc2626'; // darker red
 
             const marker = L.circleMarker([lat, lng], {
-                radius: 8,
+                radius: 9,
                 fillColor: color,
-                color: '#ffffff',
+                color: '#1f2937', // dark border
                 weight: 2,
                 opacity: 1,
-                fillOpacity: 0.8
+                fillOpacity: 0.9
             });
 
             // Create popup content
@@ -1045,6 +1294,8 @@
             
             showToast(`Location details ${isVisible ? 'hidden' : 'shown'}`, 'info');
         }
+
+
 
         // Update location list
         function updateLocationList() {
@@ -1540,287 +1791,830 @@ Recent Issues: ${recentIssues.length > 0 ?
             tokenCount: 0
         };
 
+        // ============================================================================
+        // ENHANCED AI CHAT SYSTEM WITH REPORT GENERATION
+        // ============================================================================
+        
+        // Enhanced AI Chat Functions with Report Generation
+        let aiChatState = {
+            isMinimized: false,
+            isMaximized: false,
+            tokenCount: 0,
+            originalSize: { width: 384, height: 384 },
+            originalPosition: { right: 16, top: 64 }
+        };
+        
         function toggleAIChat() {
-            const modal = document.getElementById('aiChatModal');
-            modal.classList.toggle('hidden');
+            console.log('🔧 toggleAIChat() called');
             
-            if (!modal.classList.contains('hidden')) {
-                // Focus on input when opening
-                document.getElementById('aiChatInput').focus();
-                updateConnectionStatus();
-                // Initialize dragging functionality
-                initializeDragging();
-            }
-        }
-
-        function closeAIChat() {
-            document.getElementById('aiChatModal').classList.add('hidden');
-        }
-
-        // Dragging functionality for the AI chat window
-        function initializeDragging() {
-            const chatWindow = document.getElementById('aiChatWindow');
-            const header = document.getElementById('aiChatHeader');
-            let isDragging = false;
-            let currentX;
-            let currentY;
-            let initialX;
-            let initialY;
-            let xOffset = 0;
-            let yOffset = 0;
-
-            header.addEventListener('mousedown', dragStart);
-            document.addEventListener('mousemove', dragMove);
-            document.addEventListener('mouseup', dragEnd);
-
-            function dragStart(e) {
-                initialX = e.clientX - xOffset;
-                initialY = e.clientY - yOffset;
-
-                if (e.target === header || header.contains(e.target)) {
-                    isDragging = true;
-                    chatWindow.style.transition = 'none';
+            // Prefer the Enhanced Chat Panel (purple docked chat)
+            if (window.enhancedChat && typeof window.enhancedChat.showChat === 'function') {
+                console.log('✅ Showing Enhanced Chat Panel via enhancedChat.showChat()');
+                try {
+                    window.enhancedChat.showChat();
+                    return;
+                } catch (e) {
+                    console.warn('⚠️ Failed to show Enhanced Chat Panel, falling back to legacy panel:', e);
                 }
             }
-
-            function dragMove(e) {
-                if (isDragging) {
-                    e.preventDefault();
-                    currentX = e.clientX - initialX;
-                    currentY = e.clientY - initialY;
-
-                    xOffset = currentX;
-                    yOffset = currentY;
-
-                    // Constrain to viewport
-                    const rect = chatWindow.getBoundingClientRect();
-                    const maxX = window.innerWidth - rect.width;
-                    const maxY = window.innerHeight - rect.height;
-
-                    xOffset = Math.max(0, Math.min(xOffset, maxX));
-                    yOffset = Math.max(0, Math.min(yOffset, maxY));
-
-                    chatWindow.style.transform = `translate(${xOffset}px, ${yOffset}px)`;
-                }
-            }
-
-            function dragEnd(e) {
-                initialX = currentX;
-                initialY = currentY;
-                isDragging = false;
-                chatWindow.style.transition = '';
-            }
-        }
-
-        function updateConnectionStatus() {
-            const statusElement = document.getElementById('aiConnectionStatus');
-            if (aiChatConfig.apiKey && aiChatConfig.apiKey.startsWith('sk-or-v1-')) {
-                statusElement.innerHTML = '🟢 Connected';
-                statusElement.className = 'px-2 py-1 bg-green-500/20 rounded-full text-xs text-green-200';
-            } else {
-                statusElement.innerHTML = '🔴 No API Key';
-                statusElement.className = 'px-2 py-1 bg-red-500/20 rounded-full text-xs text-red-200';
-            }
-        }
-
-        async function sendAIChatMessage() {
-            const input = document.getElementById('aiChatInput');
-            const message = input.value.trim();
             
-            if (!message) return;
+            // Fallback: force-show the legacy AI chat panel element
+            const panel = document.getElementById('aiChatPanel');
+            console.log('🔍 Legacy AI Chat Panel element:', panel);
             
-            // Check API key
-            if (!aiChatConfig.apiKey || !aiChatConfig.apiKey.startsWith('sk-or-v1-')) {
-                showToast('Please configure your OpenRouter API key first', 'error');
+            if (!panel) {
+                console.error('❌ AI Chat Panel element not found! Looking for element with ID: aiChatPanel');
+                console.log('🔍 Available elements with IDs:', Array.from(document.querySelectorAll('[id]')).map(el => el.id));
+                alert('AI Chat Panel not found! Check browser console for details.');
                 return;
             }
-
-            // Clear input and disable send button
+            
+            // Ensure panel is shown (no toggle)
+            if (panel.classList.contains('hidden')) {
+                panel.classList.remove('hidden');
+            }
+            
+            console.log('🚀 Legacy AI Chat Panel is now visible, initializing...');
+            initializeAIChatPanel();
+            updateAIDataStatus();
+        }
+        
+        function closeAIChat() {
+            document.getElementById('aiChatPanel').classList.add('hidden');
+        }
+        
+        function minimizeAIChat() {
+            const panel = document.getElementById('aiChatPanel');
+            if (aiChatState.isMinimized) {
+                panel.style.height = aiChatState.originalSize.height + 'px';
+                aiChatState.isMinimized = false;
+            } else {
+                panel.style.height = '60px';
+                aiChatState.isMinimized = true;
+            }
+        }
+        
+        function maximizeAIChat() {
+            const panel = document.getElementById('aiChatPanel');
+            if (aiChatState.isMaximized) {
+                panel.style.width = aiChatState.originalSize.width + 'px';
+                panel.style.height = aiChatState.originalSize.height + 'px';
+                panel.style.right = aiChatState.originalPosition.right + 'px';
+                panel.style.top = aiChatState.originalPosition.top + 'px';
+                panel.style.left = 'auto';
+                panel.style.bottom = 'auto';
+                aiChatState.isMaximized = false;
+            } else {
+                panel.style.width = 'calc(100vw - 32px)';
+                panel.style.height = 'calc(100vh - 32px)';
+                panel.style.left = '16px';
+                panel.style.top = '16px';
+                panel.style.right = 'auto';
+                panel.style.bottom = 'auto';
+                aiChatState.isMaximized = true;
+            }
+        }
+        
+        function initializeAIChatPanel() {
+            const panel = document.getElementById('aiChatPanel');
+            const header = document.getElementById('aiChatHeader');
+            
+            if (!panel || !header) {
+                console.warn('AI Chat panel or header not found');
+                return;
+            }
+            
+            // Initialize dragging
+            let isDragging = false;
+            let dragOffset = { x: 0, y: 0 };
+            
+            header.addEventListener('mousedown', (e) => {
+                if (e.target.tagName === 'BUTTON' || e.target.tagName === 'I') return;
+                isDragging = true;
+                const rect = panel.getBoundingClientRect();
+                dragOffset.x = e.clientX - rect.left;
+                dragOffset.y = e.clientY - rect.top;
+                panel.style.transition = 'none';
+                e.preventDefault();
+            });
+            
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const newX = e.clientX - dragOffset.x;
+                const newY = e.clientY - dragOffset.y;
+                const maxX = window.innerWidth - panel.offsetWidth;
+                const maxY = window.innerHeight - panel.offsetHeight;
+                
+                panel.style.left = Math.max(0, Math.min(newX, maxX)) + 'px';
+                panel.style.top = Math.max(0, Math.min(newY, maxY)) + 'px';
+                panel.style.right = 'auto';
+                panel.style.bottom = 'auto';
+            });
+            
+            document.addEventListener('mouseup', () => {
+                if (isDragging) {
+                    isDragging = false;
+                    panel.style.transition = '';
+                }
+            });
+            
+            // Initialize resizing
+            initializeResizeHandles();
+        }
+        
+        function initializeResizeHandles() {
+            const panel = document.getElementById('aiChatPanel');
+            const handles = panel.querySelectorAll('.resize-handle');
+            
+            handles.forEach(handle => {
+                handle.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    const handleClass = handle.className;
+                    const rect = panel.getBoundingClientRect();
+                    const startX = e.clientX;
+                    const startY = e.clientY;
+                    const startWidth = rect.width;
+                    const startHeight = rect.height;
+                    const startLeft = rect.left;
+                    const startTop = rect.top;
+                    
+                    function doResize(e) {
+                        const deltaX = e.clientX - startX;
+                        const deltaY = e.clientY - startY;
+                        
+                        let newWidth = startWidth;
+                        let newHeight = startHeight;
+                        let newLeft = startLeft;
+                        let newTop = startTop;
+                        
+                        // Handle different resize directions
+                        if (handleClass.includes('resize-handle-e') || handleClass.includes('resize-handle-se') || handleClass.includes('resize-handle-ne')) {
+                            newWidth = Math.max(320, Math.min(800, startWidth + deltaX));
+                        }
+                        if (handleClass.includes('resize-handle-w') || handleClass.includes('resize-handle-sw') || handleClass.includes('resize-handle-nw')) {
+                            newWidth = Math.max(320, Math.min(800, startWidth - deltaX));
+                            newLeft = startLeft + (startWidth - newWidth);
+                        }
+                        if (handleClass.includes('resize-handle-s') || handleClass.includes('resize-handle-se') || handleClass.includes('resize-handle-sw')) {
+                            newHeight = Math.max(400, Math.min(600, startHeight + deltaY));
+                        }
+                        if (handleClass.includes('resize-handle-n') || handleClass.includes('resize-handle-ne') || handleClass.includes('resize-handle-nw')) {
+                            newHeight = Math.max(400, Math.min(600, startHeight - deltaY));
+                            newTop = startTop + (startHeight - newHeight);
+                        }
+                        
+                        // Apply new dimensions
+                        panel.style.width = newWidth + 'px';
+                        panel.style.height = newHeight + 'px';
+                        panel.style.left = newLeft + 'px';
+                        panel.style.top = newTop + 'px';
+                        panel.style.right = 'auto';
+                        panel.style.bottom = 'auto';
+                    }
+                    
+                    function stopResize() {
+                        document.removeEventListener('mousemove', doResize);
+                        document.removeEventListener('mouseup', stopResize);
+                        document.body.style.cursor = '';
+                        document.body.style.userSelect = '';
+                    }
+                    
+                    document.addEventListener('mousemove', doResize);
+                    document.addEventListener('mouseup', stopResize);
+                    document.body.style.cursor = handle.style.cursor || 'nw-resize';
+                    document.body.style.userSelect = 'none';
+                });
+            });
+        }
+        
+        function sendQuickAIMessage(message) {
+            document.getElementById('aiChatInput').value = message;
+            sendEnhancedAIMessage();
+        }
+        
+        async function sendEnhancedAIMessage() {
+            const input = document.getElementById('aiChatInput');
+            if (!input) {
+                console.warn('AI Chat input not found');
+                return;
+            }
+            
+            const message = input.value.trim();
+            if (!message) return;
+            
+            // Add user message
+            addEnhancedChatMessage(message, 'user');
             input.value = '';
+            
+            // Disable send button
             const sendBtn = document.getElementById('aiChatSendBtn');
-            sendBtn.disabled = true;
-            sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-
-            // Add user message to chat
-            addChatMessage(message, 'user');
-
+            if (sendBtn) {
+                sendBtn.disabled = true;
+                sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            }
+            
+            updateAIStatus('Thinking...', 'info');
+            
             try {
-                // Send request to OpenRouter
-                const response = await fetch(`${aiChatConfig.baseURL}/chat/completions`, {
+                const response = await processAIMessageWithReports(message);
+                addEnhancedChatMessage(response.text, 'ai');
+                
+                // Handle special actions (report generation)
+                if (response.action) {
+                    await handleAIAction(response.action, message);
+                }
+                
+                updateAIStatus('Ready', 'success');
+                
+            } catch (error) {
+                console.error('Enhanced AI Chat Error:', error);
+                addEnhancedChatMessage('Sorry, I encountered an error. Please try again.', 'ai');
+                updateAIStatus('Error', 'error');
+            } finally {
+                const sendBtn = document.getElementById('aiChatSendBtn');
+                if (sendBtn) {
+                    sendBtn.disabled = false;
+                    sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+                }
+            }
+        }
+        
+        function updateAIStatus(status, type = 'info') {
+            const statusElement = document.getElementById('aiStatus');
+            if (!statusElement) {
+                console.warn('AI Status element not found');
+                return;
+            }
+            
+            statusElement.textContent = status;
+            
+            // Update status styling based on type
+            statusElement.className = 'text-xs px-2 py-1 rounded-full';
+            switch (type) {
+                case 'success':
+                    statusElement.className += ' bg-green-500/20 text-green-100';
+                    break;
+                case 'warning':
+                    statusElement.className += ' bg-yellow-500/20 text-yellow-100';
+                    break;
+                case 'error':
+                    statusElement.className += ' bg-red-500/20 text-red-100';
+                    break;
+                default:
+                    statusElement.className += ' bg-blue-500/20 text-blue-100';
+            }
+        }
+        
+        // AI Processing with Report Generation
+        async function processAIMessageWithReports(message) {
+            const currentData = window.allData || [];
+            const dataCount = currentData.length;
+            
+            // Detect if user wants report generation
+            const isReportRequest = /\b(report|generate|create|pdf|excel|export|download)\b/i.test(message);
+            const isPDFRequest = /\b(pdf|portable)\b/i.test(message);
+            const isExcelRequest = /\b(excel|spreadsheet|xlsx|xls)\b/i.test(message);
+            
+            if (dataCount === 0) {
+                return {
+                    text: "🤖 I don't see any data loaded yet. Please load your Google Sheets data first, then I can generate comprehensive reports and analysis of your Philippines Region 2 telecommunications sites.\n\nOnce data is loaded, I can create:\n• 📄 PDF Reports with charts and analysis\n• 📊 Excel exports with detailed data\n• 📈 Performance insights and recommendations",
+                    action: null
+                };
+            }
+            
+            if (isReportRequest) {
+                let responseText = `🤖 Perfect! I can see you have ${dataCount} sites loaded from your Philippines Region 2 data.\n\n`;
+                
+                if (isPDFRequest) {
+                    responseText += "📄 I'll generate a comprehensive PDF report with:\n• Executive Summary\n• Site Performance Analysis\n• Geographic Distribution\n• Status Overview\n• Recommendations\n\n⏳ Generating PDF report...";
+                    return {
+                        text: responseText,
+                        action: { type: 'pdf', data: currentData }
+                    };
+                } else if (isExcelRequest) {
+                    responseText += "📊 I'll create an Excel export with:\n• Complete Site Data\n• Analysis Sheets\n• Performance Metrics\n• Summary Dashboard\n• Charts and Graphs\n\n⏳ Generating Excel file...";
+                    return {
+                        text: responseText,
+                        action: { type: 'excel', data: currentData }
+                    };
+                } else {
+                    responseText += "I can generate both PDF reports and Excel exports. Which would you prefer?\n\n• Type 'PDF report' for a formatted analysis document\n• Type 'Excel export' for detailed data spreadsheet\n• Or ask for both!";
+                    return {
+                        text: responseText,
+                        action: null
+                    };
+                }
+            }
+            
+            // Regular AI analysis
+            const analysis = await generateDataAnalysis(message, currentData);
+            return {
+                text: analysis,
+                action: null
+            };
+        }
+        
+        async function generateDataAnalysis(message, data) {
+            const config = window.SITE_TRACKER_CONFIG || {};
+            const apiKey = config.ai?.openRouterApiKey;
+            
+            if (!apiKey) {
+                return generateFallbackAnalysis(message, data);
+            }
+            
+            try {
+                const dataContext = prepareDataContext(data);
+                const systemPrompt = `You are an expert telecommunications infrastructure analyst for Philippines Region 2. You have access to comprehensive site data and can provide detailed insights, recommendations, and analysis.
+
+Current data context:
+${dataContext}
+
+Provide professional, actionable insights. If asked about reports, mention that you can generate both PDF reports and Excel exports with detailed analysis.`;
+
+                const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${aiChatConfig.apiKey}`,
+                        'Authorization': `Bearer ${apiKey}`,
                         'Content-Type': 'application/json',
                         'HTTP-Referer': window.location.origin,
                         'X-Title': 'Site Tracker AI Assistant'
                     },
                     body: JSON.stringify({
-                        model: aiChatConfig.model,
+                        model: config.ai?.defaultModel || 'anthropic/claude-3-haiku',
                         messages: [
-                            {
-                                role: 'system',
-                                content: 'You are an AI assistant for a site tracking application. Help users analyze their site data, find patterns, and answer questions about their sites. Keep responses concise and helpful.'
-                            },
-                            {
-                                role: 'user',
-                                content: message
-                            }
+                            { role: 'system', content: systemPrompt },
+                            { role: 'user', content: message }
                         ],
-                        max_tokens: 500,
+                        max_tokens: 800,
                         temperature: 0.7
                     })
                 });
-
+                
                 if (!response.ok) {
-                    throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                    throw new Error(`API Error: ${response.status}`);
                 }
-
-                const data = await response.json();
-                const aiResponse = data.choices[0].message.content;
+                
+                const aiResponse = await response.json();
                 
                 // Update token count
-                if (data.usage) {
-                    aiChatConfig.tokenCount += data.usage.total_tokens;
-                    document.getElementById('aiTokenCount').textContent = `${aiChatConfig.tokenCount} tokens used`;
+                if (aiResponse.usage) {
+                    aiChatState.tokenCount += aiResponse.usage.total_tokens;
+                    document.getElementById('aiTokenCount').textContent = `${aiChatState.tokenCount} tokens used`;
                 }
-
-                // Add AI response to chat
-                addChatMessage(aiResponse, 'ai');
-
+                
+                return aiResponse.choices[0].message.content;
+                
             } catch (error) {
-                console.error('AI Chat Error:', error);
-                addChatMessage('Sorry, I encountered an error. Please try again.', 'ai');
-            } finally {
-                // Re-enable send button
-                sendBtn.disabled = false;
-                sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+                console.error('AI API Error:', error);
+                return generateFallbackAnalysis(message, data);
             }
         }
+        
+        function generateFallbackAnalysis(message, data) {
+            const totalSites = data.length;
+            const onlineSites = data.filter(site => site.status === 'online').length;
+            const offlineSites = data.filter(site => site.status === 'offline').length;
+            const sitesWithCoords = data.filter(site => site.latitude && site.longitude).length;
+            
+            const onlinePercentage = ((onlineSites / totalSites) * 100).toFixed(1);
+            const mappedPercentage = ((sitesWithCoords / totalSites) * 100).toFixed(1);
+            
+            return `🤖 **Analysis of your Philippines Region 2 Telecommunications Sites:**
 
-        // Add message to chat
-        function addChatMessage(message, sender) {
-            const messagesContainer = document.getElementById('aiChatMessages');
+📊 **Site Overview:**
+• Total Sites: ${totalSites}
+• Online: ${onlineSites} (${onlinePercentage}%)
+• Offline: ${offlineSites}
+• Mapped Locations: ${sitesWithCoords} (${mappedPercentage}%)
+
+🔍 **Key Insights:**
+• Network availability: ${onlinePercentage > 90 ? 'Excellent' : onlinePercentage > 75 ? 'Good' : 'Needs attention'}
+• Geographic coverage: ${mappedPercentage > 90 ? 'Complete' : 'Some sites need coordinates'}
+
+💡 **Recommendations:**
+${offlineSites > 0 ? `• Priority: Investigate ${offlineSites} offline sites
+` : ''}${mappedPercentage < 100 ? `• Update coordinates for unmapped sites
+` : ''}• Consider generating detailed reports for deeper analysis
+
+**Want more insights?** Ask me to generate a PDF report or Excel export for comprehensive analysis!`;
+        }
+        
+        function prepareDataContext(data) {
+            if (!data || data.length === 0) return 'No data available.';
+            
+            const totalSites = data.length;
+            const statusCounts = {
+                online: data.filter(s => s.status === 'online').length,
+                offline: data.filter(s => s.status === 'offline').length,
+                unknown: data.filter(s => s.status === 'unknown').length
+            };
+            
+            const provinces = [...new Set(data.map(s => s.province).filter(Boolean))];
+            const projects = [...new Set(data.map(s => s.project).filter(Boolean))];
+            const sitesWithCoords = data.filter(s => s.latitude && s.longitude).length;
+            
+            return `Philippines Region 2 Telecommunications Sites Data:
+• Total Sites: ${totalSites}
+• Status Distribution: ${statusCounts.online} Online, ${statusCounts.offline} Offline, ${statusCounts.unknown} Unknown
+• Geographic Coverage: ${sitesWithCoords} sites mapped (${((sitesWithCoords/totalSites)*100).toFixed(1)}%)
+• Provinces: ${provinces.slice(0, 5).join(', ')}${provinces.length > 5 ? '...' : ''}
+• Projects: ${projects.slice(0, 3).join(', ')}${projects.length > 3 ? '...' : ''}`;
+        }
+        
+        // Handle AI Actions (Report Generation)
+        async function handleAIAction(action, originalMessage) {
+            updateAIStatus('Generating report...', 'info');
+            
+            try {
+                if (action.type === 'pdf') {
+                    await generatePDFReport(action.data);
+                    addEnhancedChatMessage('✅ PDF report generated successfully! The file has been downloaded to your computer.', 'system');
+                } else if (action.type === 'excel') {
+                    await generateExcelReport(action.data);
+                    addEnhancedChatMessage('✅ Excel file generated successfully! The file has been downloaded to your computer.', 'system');
+                }
+            } catch (error) {
+                console.error('Report Generation Error:', error);
+                addEnhancedChatMessage('❌ Sorry, there was an error generating the report. Please try again.', 'system');
+            }
+            
+            updateAIStatus('Ready', 'success');
+        }
+        
+        // PDF Report Generation
+        async function generatePDFReport(data) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            
+            // Report metadata
+            const reportDate = new Date().toLocaleDateString();
+            const totalSites = data.length;
+            const onlineSites = data.filter(s => s.status === 'online').length;
+            const offlineSites = data.filter(s => s.status === 'offline').length;
+            const unknownSites = data.filter(s => s.status === 'unknown').length;
+            
+            // Page 1 - Cover Page
+            doc.setFontSize(24);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Philippines Region 2', 105, 60, { align: 'center' });
+            doc.text('Telecommunications Sites', 105, 75, { align: 'center' });
+            doc.text('Analysis Report', 105, 90, { align: 'center' });
+            
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`Generated on: ${reportDate}`, 105, 120, { align: 'center' });
+            doc.text(`Total Sites Analyzed: ${totalSites}`, 105, 135, { align: 'center' });
+            
+            // Add AI branding
+            doc.setFontSize(10);
+            doc.setTextColor(128, 128, 128);
+            doc.text('Generated by Site Tracker AI Assistant', 105, 250, { align: 'center' });
+            
+            // Page 2 - Executive Summary
+            doc.addPage();
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(18);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Executive Summary', 20, 30);
+            
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'normal');
+            const summaryText = [
+                `This report provides a comprehensive analysis of ${totalSites} telecommunications`,
+                `sites across Philippines Region 2. The analysis covers site status distribution,`,
+                `geographic coverage, and operational performance.`,
+                '',
+                'Key Findings:',
+                `• Total Sites: ${totalSites}`,
+                `• Online Sites: ${onlineSites} (${((onlineSites/totalSites)*100).toFixed(1)}%)`,
+                `• Offline Sites: ${offlineSites} (${((offlineSites/totalSites)*100).toFixed(1)}%)`,
+                `• Unknown Status: ${unknownSites} (${((unknownSites/totalSites)*100).toFixed(1)}%)`,
+                '',
+                'Network Health Assessment:',
+                `• Availability: ${((onlineSites/totalSites)*100).toFixed(1)}% of sites are operational`,
+                `• Critical Issues: ${offlineSites} sites require immediate attention`,
+                `• Monitoring: ${unknownSites} sites need status verification`
+            ];
+            
+            let yPos = 50;
+            summaryText.forEach(line => {
+                doc.text(line, 20, yPos);
+                yPos += 8;
+            });
+            
+            // Page 3 - Detailed Site Data Table
+            doc.addPage();
+            doc.setFontSize(18);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Site Details', 20, 30);
+            
+            // Prepare table data
+            const tableData = data.slice(0, 25).map(site => [
+                site.name || 'N/A',
+                site['location name'] || site.locality || 'N/A',
+                site.status || 'Unknown',
+                site.project || 'N/A',
+                site.province || 'N/A'
+            ]);
+            
+            // Add table
+            doc.autoTable({
+                head: [['Site Name', 'Location', 'Status', 'Project', 'Province']],
+                body: tableData,
+                startY: 45,
+                styles: {
+                    fontSize: 8,
+                    cellPadding: 2
+                },
+                headStyles: {
+                    fillColor: [147, 51, 234],
+                    textColor: 255
+                },
+                alternateRowStyles: {
+                    fillColor: [245, 245, 245]
+                }
+            });
+            
+            if (data.length > 25) {
+                doc.text(`Note: Showing first 25 of ${data.length} sites. Full data available in Excel export.`, 20, doc.lastAutoTable.finalY + 10);
+            }
+            
+            // Page 4 - Recommendations
+            doc.addPage();
+            doc.setFontSize(18);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Recommendations', 20, 30);
+            
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'normal');
+            const recommendations = [
+                'Based on the analysis of your telecommunications infrastructure, we recommend:',
+                '',
+                '1. Immediate Actions:',
+                offlineSites > 0 ? `   • Investigate and restore ${offlineSites} offline sites` : '   • All sites are operational - maintain current status',
+                unknownSites > 0 ? `   • Verify status of ${unknownSites} sites with unknown status` : '',
+                '',
+                '2. Infrastructure Optimization:',
+                '   • Implement proactive monitoring for all sites',
+                '   • Establish redundancy for critical locations',
+                '   • Regular maintenance schedule for optimal performance',
+                '',
+                '3. Data Management:',
+                '   • Ensure all sites have complete geographic coordinates',
+                '   • Standardize naming conventions across projects',
+                '   • Implement real-time status monitoring systems',
+                '',
+                'For detailed technical analysis and actionable insights,',
+                'consider scheduling regular AI-powered assessments.'
+            ].filter(Boolean);
+            
+            yPos = 50;
+            recommendations.forEach(line => {
+                doc.text(line, 20, yPos);
+                yPos += 7;
+            });
+            
+            // Footer on each page
+            const pageCount = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.setTextColor(128, 128, 128);
+                doc.text(`Page ${i} of ${pageCount}`, 105, 285, { align: 'center' });
+                doc.text(`Philippines Region 2 Site Analysis - ${reportDate}`, 20, 285);
+            }
+            
+            // Save the PDF
+            const fileName = `Philippines-Region2-Sites-Report-${new Date().toISOString().split('T')[0]}.pdf`;
+            doc.save(fileName);
+        }
+        
+        // Excel Report Generation
+        async function generateExcelReport(data) {
+            const wb = XLSX.utils.book_new();
+            
+            // Sheet 1: Complete Site Data
+            const siteData = data.map(site => ({
+                'Site Name': site.name || '',
+                'Location': site['location name'] || site.locality || '',
+                'Province': site.province || '',
+                'Status': site.status || 'Unknown',
+                'Project': site.project || '',
+                'Site Type': site['site type'] || '',
+                'AP Site Code': site['ap site code'] || '',
+                'Latitude': site.latitude || '',
+                'Longitude': site.longitude || '',
+                'Date of Activation': site['date of activation'] || '',
+                'Region': 'Region 2',
+                'Coordinates Status': (site.latitude && site.longitude) ? 'Mapped' : 'Unmapped'
+            }));
+            
+            const siteSheet = XLSX.utils.json_to_sheet(siteData);
+            XLSX.utils.book_append_sheet(wb, siteSheet, 'Site Data');
+            
+            // Sheet 2: Summary Analysis
+            const totalSites = data.length;
+            const statusCounts = {
+                Online: data.filter(s => s.status === 'online').length,
+                Offline: data.filter(s => s.status === 'offline').length,
+                Unknown: data.filter(s => s.status === 'unknown').length
+            };
+            
+            const summary = [
+                { Metric: 'Total Sites', Value: totalSites, Percentage: '100.0%' },
+                { Metric: 'Online Sites', Value: statusCounts.Online, Percentage: `${((statusCounts.Online/totalSites)*100).toFixed(1)}%` },
+                { Metric: 'Offline Sites', Value: statusCounts.Offline, Percentage: `${((statusCounts.Offline/totalSites)*100).toFixed(1)}%` },
+                { Metric: 'Unknown Status', Value: statusCounts.Unknown, Percentage: `${((statusCounts.Unknown/totalSites)*100).toFixed(1)}%` },
+                { Metric: 'Sites with Coordinates', Value: data.filter(s => s.latitude && s.longitude).length, Percentage: `${((data.filter(s => s.latitude && s.longitude).length/totalSites)*100).toFixed(1)}%` },
+                { Metric: 'Report Generated', Value: new Date().toLocaleDateString(), Percentage: 'N/A' }
+            ];
+            
+            const summarySheet = XLSX.utils.json_to_sheet(summary);
+            XLSX.utils.book_append_sheet(wb, summarySheet, 'Summary');
+            
+            // Sheet 3: Status Analysis
+            const statusAnalysis = Object.entries(statusCounts).map(([status, count]) => ({
+                Status: status,
+                Count: count,
+                Percentage: `${((count/totalSites)*100).toFixed(1)}%`,
+                'Health Score': status === 'Online' ? 'Good' : status === 'Offline' ? 'Critical' : 'Monitor'
+            }));
+            
+            const statusSheet = XLSX.utils.json_to_sheet(statusAnalysis);
+            XLSX.utils.book_append_sheet(wb, statusSheet, 'Status Analysis');
+            
+            // Sheet 4: Geographic Analysis
+            const provinces = [...new Set(data.map(s => s.province).filter(Boolean))];
+            const geographicAnalysis = provinces.map(province => {
+                const provinceSites = data.filter(s => s.province === province);
+                const onlineCount = provinceSites.filter(s => s.status === 'online').length;
+                
+                return {
+                    Province: province,
+                    'Total Sites': provinceSites.length,
+                    'Online Sites': onlineCount,
+                    'Offline Sites': provinceSites.filter(s => s.status === 'offline').length,
+                    'Availability %': provinceSites.length > 0 ? `${((onlineCount/provinceSites.length)*100).toFixed(1)}%` : '0%',
+                    'Mapped Sites': provinceSites.filter(s => s.latitude && s.longitude).length
+                };
+            });
+            
+            const geoSheet = XLSX.utils.json_to_sheet(geographicAnalysis);
+            XLSX.utils.book_append_sheet(wb, geoSheet, 'Geographic Analysis');
+            
+            // Sheet 5: Project Analysis
+            const projects = [...new Set(data.map(s => s.project).filter(Boolean))];
+            const projectAnalysis = projects.map(project => {
+                const projectSites = data.filter(s => s.project === project);
+                const onlineCount = projectSites.filter(s => s.status === 'online').length;
+                
+                return {
+                    Project: project,
+                    'Total Sites': projectSites.length,
+                    'Online Sites': onlineCount,
+                    'Offline Sites': projectSites.filter(s => s.status === 'offline').length,
+                    'Performance %': projectSites.length > 0 ? `${((onlineCount/projectSites.length)*100).toFixed(1)}%` : '0%'
+                };
+            });
+            
+            const projectSheet = XLSX.utils.json_to_sheet(projectAnalysis);
+            XLSX.utils.book_append_sheet(wb, projectSheet, 'Project Analysis');
+            
+            // Save the Excel file
+            const fileName = `Philippines-Region2-Sites-Analysis-${new Date().toISOString().split('T')[0]}.xlsx`;
+            XLSX.writeFile(wb, fileName);
+        }
+        
+        // Enhanced Chat Message Function
+        function addEnhancedChatMessage(message, sender) {
+            const container = document.getElementById('aiChatMessages');
+            if (!container) {
+                console.warn('AI Chat messages container not found');
+                return;
+            }
+            
             const messageDiv = document.createElement('div');
-            messageDiv.className = 'flex items-start space-x-3';
-
+            const timestamp = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
             if (sender === 'user') {
+                messageDiv.className = 'flex items-start space-x-2 flex-row-reverse';
                 messageDiv.innerHTML = `
-                    <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center flex-shrink-0">
                         <i class="fas fa-user text-white text-sm"></i>
                     </div>
-                    <div class="bg-blue-100 rounded-lg p-3 max-w-xs">
-                        <p class="text-sm text-gray-800">${message}</p>
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-3 max-w-md">
+                        <p class="text-sm text-gray-800">${escapeHtml(message)}</p>
+                        <div class="text-xs text-gray-500 mt-1">${timestamp}</div>
+                    </div>
+                `;
+            } else if (sender === 'system') {
+                messageDiv.className = 'flex justify-center';
+                messageDiv.innerHTML = `
+                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-2 max-w-md text-center">
+                        <p class="text-xs text-green-700">${message}</p>
+                        <div class="text-xs text-green-500 mt-1">${timestamp}</div>
                     </div>
                 `;
             } else {
+                messageDiv.className = 'flex items-start space-x-2';
                 messageDiv.innerHTML = `
-                    <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
                         <i class="fas fa-robot text-white text-sm"></i>
                     </div>
-                    <div class="bg-gray-100 rounded-lg p-3 max-w-xs">
-                        <p class="text-sm text-gray-800">${message}</p>
+                    <div class="bg-gradient-to-r from-gray-50 to-slate-50 border border-gray-200 rounded-lg p-3 max-w-md">
+                        <div class="text-sm text-gray-800 prose prose-sm">${message.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</div>
+                        <div class="text-xs text-gray-500 mt-1 flex items-center justify-between">
+                            <span>${timestamp}</span>
+                            <span class="text-purple-600">🤖 AI</span>
+                        </div>
                     </div>
                 `;
             }
-
-            messagesContainer.appendChild(messageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+            
+            // Add a subtle animation
+            messageDiv.style.opacity = '0';
+            messageDiv.style.transform = 'translateY(10px)';
+            setTimeout(() => {
+                messageDiv.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                messageDiv.style.opacity = '1';
+                messageDiv.style.transform = 'translateY(0)';
+            }, 50);
         }
-
-        // Initialize resize functionality for AI chat
-        function initializeChatResize() {
-            const chatWindow = document.getElementById('aiChatWindow');
-            const resizeHandles = chatWindow.querySelectorAll('.resize-handle');
-            
-            resizeHandles.forEach(handle => {
-                handle.addEventListener('mousedown', initResize);
-            });
-            
-            function initResize(e) {
-                e.preventDefault();
-                const handle = e.target;
-                const rect = chatWindow.getBoundingClientRect();
-                const startX = e.clientX;
-                const startY = e.clientY;
-                const startWidth = rect.width;
-                const startHeight = rect.height;
-                const startLeft = rect.left;
-                const startTop = rect.top;
+        
+        // Keep legacy function for compatibility
+        function addChatMessage(message, sender) {
+            addEnhancedChatMessage(message, sender);
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Enhanced data status update with null checks
+        function updateAIDataStatus() {
+            try {
+                const dataStatus = document.getElementById('dataStatus');
+                const aiStatus = document.getElementById('aiStatus');
                 
-                const handleClass = handle.className;
-                
-                function doResize(e) {
-                    const deltaX = e.clientX - startX;
-                    const deltaY = e.clientY - startY;
+                if (dataStatus) {
+                    const dataCount = window.allData ? window.allData.length : 0;
+                    const onlineCount = window.allData ? window.allData.filter(s => s.status === 'online').length : 0;
                     
-                    let newWidth = startWidth;
-                    let newHeight = startHeight;
-                    let newLeft = startLeft;
-                    let newTop = startTop;
-                    
-                    // Handle different resize directions
-                    if (handleClass.includes('resize-handle-e') || handleClass.includes('resize-handle-se') || handleClass.includes('resize-handle-ne')) {
-                        newWidth = Math.max(280, Math.min(600, startWidth + deltaX));
-                    }
-                    if (handleClass.includes('resize-handle-w') || handleClass.includes('resize-handle-sw') || handleClass.includes('resize-handle-nw')) {
-                        newWidth = Math.max(280, Math.min(600, startWidth - deltaX));
-                        newLeft = startLeft + deltaX;
-                    }
-                    if (handleClass.includes('resize-handle-s') || handleClass.includes('resize-handle-se') || handleClass.includes('resize-handle-sw')) {
-                        newHeight = Math.max(300, Math.min(window.innerHeight * 0.8, startHeight + deltaY));
-                    }
-                    if (handleClass.includes('resize-handle-n') || handleClass.includes('resize-handle-ne') || handleClass.includes('resize-handle-nw')) {
-                        newHeight = Math.max(300, Math.min(window.innerHeight * 0.8, startHeight - deltaY));
-                        newTop = startTop + deltaY;
-                    }
-                    
-                    // Apply new dimensions
-                    chatWindow.style.width = newWidth + 'px';
-                    chatWindow.style.height = newHeight + 'px';
-                    
-                    // Update position if needed
-                    if (newLeft !== startLeft || newTop !== startTop) {
-                        const modal = document.getElementById('aiChatModal');
-                        modal.style.left = newLeft + 'px';
-                        modal.style.top = newTop + 'px';
-                        modal.style.right = 'auto';
+                    if (dataCount > 0) {
+                        dataStatus.textContent = `${dataCount} sites loaded (${onlineCount} online)`;
+                        dataStatus.className = 'text-green-600 text-xs font-medium';
+                        
+                        // Update AI status to show data awareness
+                        if (aiStatus && aiStatus.textContent === 'Ready') {
+                            updateAIStatus('Data Ready', 'success');
+                        }
+                    } else {
+                        dataStatus.textContent = 'No data loaded';
+                        dataStatus.className = 'text-gray-500 text-xs';
+                        
+                        if (aiStatus && aiStatus.textContent === 'Data Ready') {
+                            updateAIStatus('Ready', 'info');
+                        }
                     }
                 }
                 
-                function stopResize() {
-                    document.removeEventListener('mousemove', doResize);
-                    document.removeEventListener('mouseup', stopResize);
-                    document.body.style.cursor = '';
-                    document.body.style.userSelect = '';
+                // Update token count if element exists
+                const tokenElement = document.getElementById('aiTokenCount');
+                if (tokenElement && aiChatState) {
+                    tokenElement.textContent = `${aiChatState.tokenCount || 0} tokens used`;
                 }
-                
-                document.addEventListener('mousemove', doResize);
-                document.addEventListener('mouseup', stopResize);
-                document.body.style.cursor = handle.style.cursor || 'nw-resize';
-                document.body.style.userSelect = 'none';
+            } catch (error) {
+                console.warn('Error updating AI data status:', error);
             }
         }
-
-        // Initialize when DOM is loaded
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeChatResize();
-        });
 
     </script>
 
     <style>
-        /* Resize handle styles */
-        .resizable-chat {
+        /* Enhanced Resize Panel Styles */
+        .resize-panel {
             position: relative;
+            resize: both;
+            overflow: hidden;
         }
         
         .resize-handle {
             position: absolute;
             background: transparent;
-            z-index: 10;
+            z-index: 20;
+            transition: background-color 0.2s ease;
         }
         
         .resize-handle:hover {
+            background: rgba(147, 51, 234, 0.1);
+        }
+        
+        .resize-handle:active {
             background: rgba(147, 51, 234, 0.2);
         }
         
@@ -1915,11 +2709,12 @@ Recent Issues: ${recentIssues.length > 0 ?
     <!-- AI Report Generator -->
     <script src="ai-report-generator.js"></script>
     
+    <!-- Enhanced Chat Panel -->
+    <script src="enhanced-chat-panel.js"></script>
+    
     <!-- AI System Scripts - Load after main application -->
     <script src="auto-config.js"></script>
     <script src="ai-config-bridge.js"></script>
-    <script src="ai-assistant.js"></script>
-    <script src="enhanced-chat-panel.js"></script>
     <script src="debug-ai-data.js"></script>
 
 </body>
